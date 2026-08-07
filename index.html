@@ -31,9 +31,22 @@
         .setting-desc { font-size: 0.8rem; color: var(--text-muted); }
         .btn-ui { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; }
         .btn-ui:hover { border-color: var(--accent-color); color: var(--accent-color); }
-        select, input { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 8px; font-size: 0.9rem; }
+        select { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; width: 150px; cursor: pointer; }
+        
+        /* Modal Stili */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-card { background: var(--card-bg); border: 1px solid var(--border-color); width: 100%; max-width: 450px; padding: 24px; border-radius: 20px; transform: scale(0.9); transition: 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--accent-color); }
+        .modal-close { background: none; border: none; color: var(--text-color); font-size: 1.2rem; cursor: pointer; }
+        .modal-body { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; display: flex; flex-direction: column; gap: 10px; }
+
         .footer { margin: 20px 0; text-align: center; font-size: 0.85rem; color: var(--text-muted); }
         .footer span { color: var(--accent-color); font-weight: 600; }
+
+        /* Light Mode Destekleri */
         body.light-mode { --bg-color: #f8fafc; --card-bg: #ffffff; --text-color: #0f172a; --text-muted: #64748b; --border-color: #e2e8f0; }
     </style>
 </head>
@@ -73,7 +86,89 @@
                 <div class="setting-label" data-i18n="cityPref">Varsayılan Konum</div>
                 <div class="setting-desc" data-i18n="cityDesc">Namaz vakitleri için il seçin</div>
             </div>
-            <input type="text" id="cityInput" placeholder="Şehir adı" onchange="saveCity()">
+            <select id="citySelectBox" onchange="saveCity()">
+                <option value="Adana">Adana</option>
+                <option value="Adıyaman">Adıyaman</option>
+                <option value="Afyonkarahisar">Afyonkarahisar</option>
+                <option value="Ağrı">Ağrı</option>
+                <option value="Amasya">Amasya</option>
+                <option value="Ankara">Ankara</option>
+                <option value="Antalya">Antalya</option>
+                <option value="Artvin">Artvin</option>
+                <option value="Aydın">Aydın</option>
+                <option value="Balıkesir">Balıkesir</option>
+                <option value="Bilecik">Bilecik</option>
+                <option value="Bingöl">Bingöl</option>
+                <option value="Bitlis">Bitlis</option>
+                <option value="Bolu">Bolu</option>
+                <option value="Burdur">Burdur</option>
+                <option value="Bursa">Bursa</option>
+                <option value="Çanakkale">Çanakkale</option>
+                <option value="Çankırı">Çankırı</option>
+                <option value="Çorum">Çorum</option>
+                <option value="Denizli">Denizli</option>
+                <option value="Diyarbakır">Diyarbakır</option>
+                <option value="Edirne">Edirne</option>
+                <option value="Elazığ">Elazığ</option>
+                <option value="Erzincan">Erzincan</option>
+                <option value="Erzurum">Erzurum</option>
+                <option value="Eskişehir">Eskişehir</option>
+                <option value="Gaziantep">Gaziantep</option>
+                <option value="Giresun">Giresun</option>
+                <option value="Gümüşhane">Gümüşhane</option>
+                <option value="Hakkari">Hakkari</option>
+                <option value="Hatay">Hatay</option>
+                <option value="Isparta">Isparta</option>
+                <option value="Mersin">Mersin</option>
+                <option value="İstanbul">İstanbul</option>
+                <option value="İzmir">İzmir</option>
+                <option value="Kars">Kars</option>
+                <option value="Kastamonu">Kastamonu</option>
+                <option value="Kayseri">Kayseri</option>
+                <option value="Kırklareli">Kırklareli</option>
+                <option value="Kırşehir">Kırşehir</option>
+                <option value="Kocaeli">Kocaeli</option>
+                <option value="Konya">Konya</option>
+                <option value="Kütahya">Kütahya</option>
+                <option value="Malatya">Malatya</option>
+                <option value="Manisa">Manisa</option>
+                <option value="Kahramanmaraş">Kahramanmaraş</option>
+                <option value="Mardin">Mardin</option>
+                <option value="Muğla">Muğla</option>
+                <option value="Muş">Muş</option>
+                <option value="Nevşehir">Nevşehir</option>
+                <option value="Niğde">Niğde</option>
+                <option value="Ordu">Ordu</option>
+                <option value="Rize">Rize</option>
+                <option value="Sakarya">Sakarya</option>
+                <option value="Samsun">Samsun</option>
+                <option value="Siirt">Siirt</option>
+                <option value="Sinop">Sinop</option>
+                <option value="Sivas">Sivas</option>
+                <option value="Tekirdağ">Tekirdağ</option>
+                <option value="Tokat">Tokat</option>
+                <option value="Trabzon">Trabzon</option>
+                <option value="Tunceli">Tunceli</option>
+                <option value="Şanlıurfa">Şanlıurfa</option>
+                <option value="Uşak">Uşak</option>
+                <option value="Van">Van</option>
+                <option value="Yozgat">Yozgat</option>
+                <option value="Zonguldak">Zonguldak</option>
+                <option value="Aksaray">Aksaray</option>
+                <option value="Bayburt">Bayburt</option>
+                <option value="Karaman">Karaman</option>
+                <option value="Kırıkkale">Kırıkkale</option>
+                <option value="Batman">Batman</option>
+                <option value="Şırnak">Şırnak</option>
+                <option value="Bartın">Bartın</option>
+                <option value="Ardahan">Ardahan</option>
+                <option value="Iğdır">Iğdır</option>
+                <option value="Yalova">Yalova</option>
+                <option value="Karabük">Karabük</option>
+                <option value="Kilis">Kilis</option>
+                <option value="Osmaniye">Osmaniye</option>
+                <option value="Düzce">Düzce</option>
+            </select>
         </div>
     </div>
 
@@ -91,7 +186,7 @@
                 <div class="setting-label" data-i18n="aboutUs">Hakkımızda</div>
                 <div class="setting-desc" data-i18n="aboutUsDesc">Proje ve vizyonumuz hakkında bilgi</div>
             </div>
-            <button class="btn-ui" onclick="alertTranslation()" data-i18n="readBtn">Oku ›</button>
+            <button class="btn-ui" onclick="toggleAboutModal()" data-i18n="readBtn">Oku ›</button>
         </div>
         <div class="setting-item">
             <div class="setting-info">
@@ -99,6 +194,21 @@
                 <div class="setting-desc" data-i18n="ytDesc">İçeriklerimizi takip edin</div>
             </div>
             <a href="https://www.youtube.com/@AyetinVakti" target="_blank" class="btn-ui">YouTube ›</a>
+        </div>
+    </div>
+</div>
+
+<!-- Hakkımızda Detay Modalı -->
+<div class="modal-overlay" id="aboutModal" onclick="toggleAboutModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-title" data-i18n="modalAboutTitle">Ayetin Vakti Hakkında</div>
+            <button class="modal-close" onclick="toggleAboutModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <p data-i18n="modalAboutText1"><strong>Ayetin Vakti</strong>, günlük ibadetlerinizi daha kolay, huzurlu ve düzenli bir şekilde yerine getirebilmeniz için tasarlanmış kapsamlı bir dijital İslami rehber platformudur.</p>
+            <p data-i18n="modalAboutText2">Amacımız; namaz vakitlerinden Kur'an-ı Kerim okumaya, kıble pusulasından zikirmatiğe kadar İslami konulardaki dijital ihtiyaçlarınızı modern, sade ve reklamsız bir arayüzle tek bir çatı altında toplamaktır.</p>
+            <p style="color: var(--accent-color); font-weight: 600; text-align: center; margin-top: 6px;" data-i18n="modalAboutText3">Huzur ve İbadet Rehberliğiniz.</p>
         </div>
     </div>
 </div>
@@ -125,7 +235,10 @@
             readBtn: "Oku ›",
             ytDesc: "İçeriklerimizi takip edin",
             footerText: "Huzur ve İbadet Rehberliğiniz",
-            alertText: "Ayetin Vakti, ibadetlerinizi kolaylaştırmak için geliştirilmiş bir dijital rehberdir."
+            modalAboutTitle: "Ayetin Vakti Hakkında",
+            modalAboutText1: "<strong>Ayetin Vakti</strong>, günlük ibadetlerinizi daha kolay, huzurlu ve düzenli bir şekilde yerine getirebilmeniz için tasarlanmış kapsamlı bir dijital İslami rehber platformudur.",
+            modalAboutText2: "Amacımız; namaz vakitlerinden Kur'an-ı Kerim okumaya, kıble pusulasından zikirmatiğe kadar İslami konulardaki dijital ihtiyaçlarınızı modern, sade ve reklamsız bir arayüzle tek bir çatı altında toplamaktır.",
+            modalAboutText3: "Huzur ve İbadet Rehberliğiniz."
         },
         en: {
             settingsTitle: "App Settings",
@@ -145,7 +258,10 @@
             readBtn: "Read ›",
             ytDesc: "Follow our content",
             footerText: "Your Guide to Peace & Worship",
-            alertText: "Ayetin Vakti is a digital guide developed to facilitate your worship."
+            modalAboutTitle: "About Ayetin Vakti",
+            modalAboutText1: "<strong>Ayetin Vakti</strong> is a comprehensive digital Islamic guide platform designed to help you perform your daily worship easier, more peacefully, and regularly.",
+            modalAboutText2: "Our goal is to gather your digital needs in Islamic matters—from prayer times to reading the Holy Quran, Qibla compass to dhikrmatic—under one roof with a modern, clean, and ad-free interface.",
+            modalAboutText3: "Your Guide to Peace and Worship."
         }
     };
 
@@ -153,7 +269,7 @@
         const t = translations[lang] || translations.tr;
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
-            if (t[key]) el.innerText = t[key];
+            if (t[key]) el.innerHTML = t[key];
         });
         const themeText = document.getElementById('theme-text');
         const isLight = document.documentElement.classList.contains('light-mode');
@@ -167,16 +283,17 @@
     }
 
     function saveCity() {
-        localStorage.setItem('user_city', document.getElementById('cityInput').value);
+        const selectedCity = document.getElementById('citySelectBox').value;
+        localStorage.setItem('user_city', selectedCity);
     }
 
-    function alertTranslation() {
-        const lang = localStorage.getItem('user_lang') || 'tr';
-        alert(translations[lang].alertText);
+    function toggleAboutModal() {
+        document.getElementById('aboutModal').classList.toggle('active');
     }
 
     function toggleTheme() {
         const isLight = document.documentElement.classList.toggle('light-mode');
+        document.body.classList.toggle('light-mode', isLight);
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
         const lang = localStorage.getItem('user_lang') || 'tr';
         applyTranslations(lang);
@@ -184,11 +301,16 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'light') document.documentElement.classList.add('light-mode');
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.body.classList.add('light-mode');
+        }
         
         const savedLang = localStorage.getItem('user_lang') || 'tr';
         document.getElementById('langSelect').value = savedLang;
-        document.getElementById('cityInput').value = localStorage.getItem('user_city') || 'Erzincan';
+        
+        const savedCity = localStorage.getItem('user_city') || 'Erzincan';
+        document.getElementById('citySelectBox').value = savedCity;
         
         applyTranslations(savedLang);
     });
