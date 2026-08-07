@@ -162,7 +162,7 @@
 
     function changeLanguage() {
         const lang = document.getElementById('langSelect').value;
-        localStorage.setItem('lang', lang);
+        localStorage.setItem('user_lang', lang);
         applyTranslations(lang);
     }
 
@@ -171,14 +171,14 @@
     }
 
     function alertTranslation() {
-        const lang = localStorage.getItem('lang') || 'tr';
+        const lang = localStorage.getItem('user_lang') || 'tr';
         alert(translations[lang].alertText);
     }
 
     function toggleTheme() {
         const isLight = document.documentElement.classList.toggle('light-mode');
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
-        const lang = localStorage.getItem('lang') || 'tr';
+        const lang = localStorage.getItem('user_lang') || 'tr';
         applyTranslations(lang);
     }
 
@@ -186,7 +186,7 @@
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'light') document.documentElement.classList.add('light-mode');
         
-        const savedLang = localStorage.getItem('lang') || 'tr';
+        const savedLang = localStorage.getItem('user_lang') || 'tr';
         document.getElementById('langSelect').value = savedLang;
         document.getElementById('cityInput').value = localStorage.getItem('user_city') || 'Erzincan';
         
