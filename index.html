@@ -2,22 +2,10 @@
 <html lang="tr">
 <head>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-
-    <script>
-        const savedTheme = localStorage.getItem('theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (savedTheme === 'light' || (!savedTheme && !systemPrefersDark)) {
-            document.documentElement.classList.add('light-mode');
-        }
-    </script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ayarlar | Ayetin Vakti</title>
     <meta name="theme-color" content="#10b981">
-
     <style>
         :root {
             --bg-color: #0b1120;
@@ -27,36 +15,25 @@
             --text-muted: #94a3b8;
             --border-color: #334155;
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 16px; transition: background-color 0.3s ease, color 0.3s ease; }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 16px; transition: 0.3s; }
         .container { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 16px; }
-
-        .navbar { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
-
+        .navbar { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; }
         .nav-left { display: flex; align-items: center; gap: 12px; }
         .back-btn { background: none; border: none; color: var(--text-color); font-size: 1.25rem; cursor: pointer; text-decoration: none; }
         .app-title { font-size: 1.15rem; font-weight: 700; color: var(--accent-color); text-decoration: none; font-family: 'Georgia', serif; }
-
-        .settings-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        .settings-section-title { font-size: 0.85rem; font-weight: 700; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .settings-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+        .settings-section-title { font-size: 0.85rem; font-weight: 700; color: var(--accent-color); text-transform: uppercase; }
         .setting-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
-        .setting-item:last-child { border-bottom: none; padding-bottom: 0; }
-        
+        .setting-item:last-child { border-bottom: none; }
         .setting-info { display: flex; flex-direction: column; gap: 2px; }
-        .setting-label { font-size: 0.95rem; font-weight: 600; color: var(--text-color); }
+        .setting-label { font-size: 0.95rem; font-weight: 600; }
         .setting-desc { font-size: 0.8rem; color: var(--text-muted); }
-
-        .btn-ui { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s ease; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        .btn-ui { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; }
         .btn-ui:hover { border-color: var(--accent-color); color: var(--accent-color); }
-        
-        select { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; }
-
+        select, input { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 8px; font-size: 0.9rem; }
         .footer { margin: 20px 0; text-align: center; font-size: 0.85rem; color: var(--text-muted); }
         .footer span { color: var(--accent-color); font-weight: 600; }
-
         body.light-mode { --bg-color: #f8fafc; --card-bg: #ffffff; --text-color: #0f172a; --text-muted: #64748b; --border-color: #e2e8f0; }
     </style>
 </head>
@@ -66,17 +43,16 @@
     <header class="navbar">
         <div class="nav-left">
             <a href="https://ayetinvakti.github.io/" class="back-btn">←</a>
-            <a href="#" class="app-title">Uygulama Ayarları</a>
+            <a href="#" class="app-title" data-i18n="settingsTitle">Uygulama Ayarları</a>
         </div>
     </header>
 
-    <!-- GÖRÜNÜM -->
     <div class="settings-card">
-        <div class="settings-section-title">Görünüm ve Tercihler</div>
+        <div class="settings-section-title" data-i18n="secAppearance">Görünüm ve Tercihler</div>
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label">Tema Tercihi</div>
-                <div class="setting-desc">Koyu veya açık mod arasında geçiş yapın</div>
+                <div class="setting-label" data-i18n="themePref">Tema Tercihi</div>
+                <div class="setting-desc" data-i18n="themeDesc">Koyu veya açık mod arasında geçiş yapın</div>
             </div>
             <button class="btn-ui" onclick="toggleTheme()" id="theme-btn">
                 <span id="theme-icon">🌙</span> <span id="theme-text">Koyu Mod</span>
@@ -84,85 +60,137 @@
         </div>
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label">Uygulama Dili</div>
-                <div class="setting-desc">Türkçe veya İngilizce seçimi</div>
+                <div class="setting-label" data-i18n="langPref">Uygulama Dili</div>
+                <div class="setting-desc" data-i18n="langDesc">Türkçe veya İngilizce seçimi</div>
             </div>
-            <select id="langSelect" onchange="saveSettings()">
+            <select id="langSelect" onchange="changeLanguage()">
                 <option value="tr">Türkçe</option>
                 <option value="en">English</option>
             </select>
         </div>
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label">Varsayılan Konum</div>
-                <div class="setting-desc">Namaz vakitleri için il seçin</div>
+                <div class="setting-label" data-i18n="cityPref">Varsayılan Konum</div>
+                <div class="setting-desc" data-i18n="cityDesc">Namaz vakitleri için il seçin</div>
             </div>
-            <input type="text" id="cityInput" placeholder="Şehir adı girin" style="width: 100px; padding: 6px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color);">
+            <input type="text" id="cityInput" placeholder="Şehir adı" onchange="saveCity()">
         </div>
     </div>
 
-    <!-- HAKKINDA -->
     <div class="settings-card">
-        <div class="settings-section-title">Hakkında</div>
+        <div class="settings-section-title" data-i18n="secAbout">Hakkında</div>
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label">Uygulama Sürümü</div>
+                <div class="setting-label" data-i18n="appVersion">Uygulama Sürümü</div>
                 <div class="setting-desc">Ayetin Vakti Dijital İslami Yardımcı</div>
             </div>
             <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-color);">v1.2.0</div>
         </div>
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label">Hakkımızda</div>
-                <div class="setting-desc">Proje ve vizyonumuz hakkında bilgi</div>
+                <div class="setting-label" data-i18n="aboutUs">Hakkımızda</div>
+                <div class="setting-desc" data-i18n="aboutUsDesc">Proje ve vizyonumuz hakkında bilgi</div>
             </div>
-            <button class="btn-ui" onclick="alert('Ayetin Vakti, ibadetlerinizi kolaylaştırmak için geliştirilmiş bir dijital rehberdir.')">Oku ›</button>
+            <button class="btn-ui" onclick="alertTranslation()" data-i18n="readBtn">Oku ›</button>
         </div>
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-label">YouTube Kanalı</div>
-                <div class="setting-desc">İçeriklerimizi takip edin</div>
+                <div class="setting-desc" data-i18n="ytDesc">İçeriklerimizi takip edin</div>
             </div>
             <a href="https://www.youtube.com/@AyetinVakti" target="_blank" class="btn-ui">YouTube ›</a>
         </div>
     </div>
 </div>
 
-<div class="footer">© Ayetin Vakti • <span>Huzur ve İbadet Rehberliğiniz</span></div>
+<div class="footer">© Ayetin Vakti • <span data-i18n="footerText">Huzur ve İbadet Rehberliğiniz</span></div>
 
 <script>
-    // Tema Fonksiyonları
-    function toggleTheme() {
-        const isLight = document.documentElement.classList.toggle('light-mode');
-        document.body.classList.toggle('light-mode', isLight);
-        localStorage.setItem('theme', isLight ? 'light' : 'dark');
-        updateThemeUI(isLight);
-    }
-    function updateThemeUI(isLight) {
-        document.getElementById('theme-icon').innerText = isLight ? '☀️' : '🌙';
-        document.getElementById('theme-text').innerText = isLight ? 'Açık Mod' : 'Koyu Mod';
+    const translations = {
+        tr: {
+            settingsTitle: "Uygulama Ayarları",
+            secAppearance: "Görünüm ve Tercihler",
+            themePref: "Tema Tercihi",
+            themeDesc: "Koyu veya açık mod arasında geçiş yapın",
+            darkMod: "Koyu Mod",
+            lightMod: "Açık Mod",
+            langPref: "Uygulama Dili",
+            langDesc: "Türkçe veya İngilizce seçimi",
+            cityPref: "Varsayılan Konum",
+            cityDesc: "Namaz vakitleri için il seçin",
+            secAbout: "Hakkında",
+            appVersion: "Uygulama Sürümü",
+            aboutUs: "Hakkımızda",
+            aboutUsDesc: "Proje ve vizyonumuz hakkında bilgi",
+            readBtn: "Oku ›",
+            ytDesc: "İçeriklerimizi takip edin",
+            footerText: "Huzur ve İbadet Rehberliğiniz",
+            alertText: "Ayetin Vakti, ibadetlerinizi kolaylaştırmak için geliştirilmiş bir dijital rehberdir."
+        },
+        en: {
+            settingsTitle: "App Settings",
+            secAppearance: "Appearance & Preferences",
+            themePref: "Theme Preference",
+            themeDesc: "Switch between dark or light mode",
+            darkMod: "Dark Mode",
+            lightMod: "Light Mode",
+            langPref: "App Language",
+            langDesc: "Select Turkish or English",
+            cityPref: "Default Location",
+            cityDesc: "Select city for prayer times",
+            secAbout: "About",
+            appVersion: "App Version",
+            aboutUs: "About Us",
+            aboutUsDesc: "Information about our project & vision",
+            readBtn: "Read ›",
+            ytDesc: "Follow our content",
+            footerText: "Your Guide to Peace & Worship",
+            alertText: "Ayetin Vakti is a digital guide developed to facilitate your worship."
+        }
+    };
+
+    function applyTranslations(lang) {
+        const t = translations[lang] || translations.tr;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key]) el.innerText = t[key];
+        });
+        const themeText = document.getElementById('theme-text');
+        const isLight = document.documentElement.classList.contains('light-mode');
+        if (themeText) themeText.innerText = isLight ? t.lightMod : t.darkMod;
     }
 
-    // Ayarları Kaydetme
-    function saveSettings() {
-        localStorage.setItem('lang', document.getElementById('langSelect').value);
+    function changeLanguage() {
+        const lang = document.getElementById('langSelect').value;
+        localStorage.setItem('lang', lang);
+        applyTranslations(lang);
+    }
+
+    function saveCity() {
         localStorage.setItem('user_city', document.getElementById('cityInput').value);
     }
 
-    // Yükleme
-    document.addEventListener('DOMContentLoaded', () => {
-        // Tema yükle
-        const savedTheme = localStorage.getItem('theme');
-        const isLight = (savedTheme === 'light');
-        if (isLight) { document.documentElement.classList.add('light-mode'); document.body.classList.add('light-mode'); }
-        updateThemeUI(isLight);
+    function alertTranslation() {
+        const lang = localStorage.getItem('lang') || 'tr';
+        alert(translations[lang].alertText);
+    }
 
-        // Dil ve Şehir yükle
-        document.getElementById('langSelect').value = localStorage.getItem('lang') || 'tr';
+    function toggleTheme() {
+        const isLight = document.documentElement.classList.toggle('light-mode');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        const lang = localStorage.getItem('lang') || 'tr';
+        applyTranslations(lang);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') document.documentElement.classList.add('light-mode');
+        
+        const savedLang = localStorage.getItem('lang') || 'tr';
+        document.getElementById('langSelect').value = savedLang;
         document.getElementById('cityInput').value = localStorage.getItem('user_city') || 'Erzincan';
         
-        // Şehir değişikliğini takip et
-        document.getElementById('cityInput').addEventListener('change', saveSettings);
+        applyTranslations(savedLang);
     });
 </script>
 </body>
