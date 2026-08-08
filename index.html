@@ -172,6 +172,27 @@
         </div>
     </div>
 
+    <!-- Bildirim ve Hatırlatma Ayarları -->
+    <div class="settings-card">
+        <div class="settings-section-title" data-i18n="secNotifications">Bildirim ve Hatırlatmalar</div>
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label" data-i18n="reminderTimeLabel">Vakit Hatırlatma Süresi</div>
+                <div class="setting-desc" data-i18n="reminderTimeDesc">Vakte ne kadar kala bildirim alınacağını seçin</div>
+            </div>
+            <select id="reminderTimeSelect" onchange="saveReminderTime()">
+                <option value="0">Vakit Girdiği An</option>
+                <option value="5">5 dakika kala</option>
+                <option value="10" selected>10 dakika kala</option>
+                <option value="15">15 dakika kala</option>
+                <option value="20">20 dakika kala</option>
+                <option value="30">30 dakika kala</option>
+                <option value="45">45 dakika kala</option>
+                <option value="60">1 saat kala</option>
+            </select>
+        </div>
+    </div>
+
     <div class="settings-card">
         <div class="settings-section-title" data-i18n="secAbout">Hakkında</div>
         <div class="setting-item">
@@ -228,6 +249,9 @@
             langDesc: "Türkçe veya İngilizce seçimi",
             cityPref: "Varsayılan Konum",
             cityDesc: "Namaz vakitleri için il seçin",
+            secNotifications: "Bildirim ve Hatırlatmalar",
+            reminderTimeLabel: "Vakit Hatırlatma Süresi",
+            reminderTimeDesc: "Vakte ne kadar kala bildirim alınacağını seçin",
             secAbout: "Hakkında",
             appVersion: "Uygulama Sürümü",
             aboutUs: "Hakkımızda",
@@ -251,6 +275,9 @@
             langDesc: "Select Turkish or English",
             cityPref: "Default Location",
             cityDesc: "Select city for prayer times",
+            secNotifications: "Notifications & Reminders",
+            reminderTimeLabel: "Prayer Reminder Time",
+            reminderTimeDesc: "Choose how many minutes before prayer to get notified",
             secAbout: "About",
             appVersion: "App Version",
             aboutUs: "About Us",
@@ -287,6 +314,11 @@
         localStorage.setItem('user_city', selectedCity);
     }
 
+    function saveReminderTime() {
+        const reminderTime = document.getElementById('reminderTimeSelect').value;
+        localStorage.setItem('prayer_reminder_time', reminderTime);
+    }
+
     function toggleAboutModal() {
         document.getElementById('aboutModal').classList.toggle('active');
     }
@@ -311,6 +343,9 @@
         
         const savedCity = localStorage.getItem('user_city') || 'Erzincan';
         document.getElementById('citySelectBox').value = savedCity;
+
+        const savedReminder = localStorage.getItem('prayer_reminder_time') || '10';
+        document.getElementById('reminderTimeSelect').value = savedReminder;
         
         applyTranslations(savedLang);
     });
