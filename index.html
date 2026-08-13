@@ -6,6 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ayarlar | Ayetin Vakti</title>
     <meta name="theme-color" content="#10b981">
+    
+    <!-- Sayfa yüklenmeden önce kayıtlı tema ve özel rengi uygulayan script -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.documentElement.classList.add('light-mode');
+            }
+            const customAccent = localStorage.getItem('custom_accent');
+            if (customAccent) {
+                document.documentElement.style.setProperty('--accent-color', customAccent);
+            }
+        })();
+    </script>
+
     <style>
         :root {
             --bg-color: #0b1120;
@@ -33,6 +48,17 @@
         .btn-ui:hover { border-color: var(--accent-color); color: var(--accent-color); }
         select { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; width: 150px; cursor: pointer; }
         
+        /* Özel Renk Seçici Kutusu */
+        .color-picker-input {
+            width: 38px;
+            height: 38px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: none;
+            cursor: pointer;
+            padding: 2px;
+        }
+
         /* Modal Stili */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -62,6 +88,8 @@
 
     <div class="settings-card">
         <div class="settings-section-title" data-i18n="secAppearance">Görünüm ve Tercihler</div>
+        
+        <!-- Tema Tercihi -->
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-label" data-i18n="themePref">Tema Tercihi</div>
@@ -71,6 +99,16 @@
                 <span id="theme-icon">🌙</span> <span id="theme-text">Koyu Mod</span>
             </button>
         </div>
+
+        <!-- YENİ EKLENEN: Özel Tema / Vurgu Rengi Seçici -->
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label">Özel Renk Paleti</div>
+                <div class="setting-desc">Uygulama vurgu rengini kişiselleştirin</div>
+            </div>
+            <input type="color" id="accentColorPicker" class="color-picker-input" value="#10b981" onchange="saveCustomAccent(this.value)">
+        </div>
+
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-label" data-i18n="langPref">Uygulama Dili</div>
@@ -396,6 +434,12 @@
         localStorage.setItem('prayer_reminder_time', reminderTime);
     }
 
+    // YENİ EKLENEN: Özel renk kaydetme fonksiyonu
+    function saveCustomAccent(color) {
+        document.documentElement.style.setProperty('--accent-color', color);
+        localStorage.setItem('custom_accent', color);
+    }
+
     function toggleModal(modalId) {
         document.getElementById(modalId).classList.toggle('active');
     }
@@ -423,6 +467,12 @@
 
         const savedReminder = localStorage.getItem('prayer_reminder_time') || '10';
         document.getElementById('reminderTimeSelect').value = savedReminder;
+
+        // Kayıtlı özel renk varsa renk seçici kutusunun değerini güncelle
+        const savedAccent = localStorage.getItem('custom_accent');
+        if (savedAccent) {
+            document.getElementById('accentColorPicker').value = savedAccent;
+        }
         
         applyTranslations(savedLang);
     });
