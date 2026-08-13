@@ -7,7 +7,7 @@
     <title>Ayarlar | Ayetin Vakti</title>
     <meta name="theme-color" content="#10b981">
     
-    <!-- Sayfa yüklenmeden önce kayıtlı tema ve özel rengi uygulayan script -->
+    <!-- Sayfa yüklenmeden önce kayıtlı tema ve özel renkleri uygulayan script -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem('theme');
@@ -15,8 +15,14 @@
                 document.documentElement.classList.add('light-mode');
             }
             const customAccent = localStorage.getItem('custom_accent');
-            if (customAccent) {
-                document.documentElement.style.setProperty('--accent-color', customAccent);
+            const customText = localStorage.getItem('custom_text');
+            const customBg = localStorage.getItem('custom_bg');
+
+            if (customAccent) document.documentElement.style.setProperty('--accent-color', customAccent);
+            if (customText) document.documentElement.style.setProperty('--text-color', customText);
+            if (customBg) {
+                document.documentElement.style.setProperty('--bg-color', customBg);
+                document.documentElement.style.setProperty('--card-bg', customBg);
             }
         })();
     </script>
@@ -100,13 +106,13 @@
             </button>
         </div>
 
-        <!-- YENİ EKLENEN: Özel Tema / Vurgu Rengi Seçici -->
+        <!-- YENİ: Özel Renk Paleti (Modal Açan Buton) -->
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-label">Özel Renk Paleti</div>
-                <div class="setting-desc">Uygulama vurgu rengini kişiselleştirin</div>
+                <div class="setting-desc">Vurgu, yazı ve arka planı kişiselleştirin</div>
             </div>
-            <input type="color" id="accentColorPicker" class="color-picker-input" value="#10b981" onchange="saveCustomAccent(this.value)">
+            <button class="btn-ui" onclick="toggleModal('colorSettingsModal')">Düzenle ›</button>
         </div>
 
         <div class="setting-item">
@@ -281,6 +287,39 @@
     </div>
 </div>
 
+<!-- GELİŞMİŞ RENK PALETİ MODALI -->
+<div class="modal-overlay" id="colorSettingsModal" onclick="toggleModal('colorSettingsModal')">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-title">Gelişmiş Renk Paleti</div>
+            <button class="modal-close" onclick="toggleModal('colorSettingsModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size: 0.85rem; margin-bottom: 5px;">Uygulama renklerini dilediğiniz gibi kişiselleştirin.</p>
+            
+            <div class="setting-item" style="border-bottom: 1px solid var(--border-color); padding: 8px 0;">
+                <div class="setting-label">1. Vurgu Rengi</div>
+                <input type="color" id="accentPicker" class="color-picker-input" onchange="previewColor('accent', this.value)">
+            </div>
+            
+            <div class="setting-item" style="border-bottom: 1px solid var(--border-color); padding: 8px 0;">
+                <div class="setting-label">2. Yazı Rengi</div>
+                <input type="color" id="textPicker" class="color-picker-input" onchange="previewColor('text', this.value)">
+            </div>
+            
+            <div class="setting-item" style="border-bottom: 1px solid var(--border-color); padding: 8px 0;">
+                <div class="setting-label">3. Arka Plan</div>
+                <input type="color" id="bgPicker" class="color-picker-input" onchange="previewColor('bg', this.value)">
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                <button class="btn-ui" style="justify-content: center; background: var(--accent-color); color: #fff; padding: 10px;" onclick="applyColorsToAll()">Tüm Sayfalara Uygula</button>
+                <button class="btn-ui" style="justify-content: center; background: transparent; padding: 8px;" onclick="resetColors()">Varsayılana Dön</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Hakkımızda Detay Modalı -->
 <div class="modal-overlay" id="aboutModal" onclick="toggleModal('aboutModal')">
     <div class="modal-card" onclick="event.stopPropagation()">
@@ -319,7 +358,7 @@
         </div>
         <div class="modal-body">
             <p data-i18n="modalTermsText1">Bu uygulamayı kullanarak aşağıdaki koşulları kabul etmiş sayanırsınız:</p>
-            <p data-i18n="modalTermsText2">1. <strong>İçerik Kullanımı:</strong> Uygulama içerisindeki ayet, namaz vakti ve dini içerikler bilgilendirme amaçlı sunulmaktadır.</p>
+            <p data-i18n="modalTermsText2">1. <strong>İçerik Kullanımı:</strong> Uygulama içerisindeki ayet, namaz vakitleri ve dini içerikler bilgilendirme amaçlı sunulmaktadır.</p>
             <p data-i18n="modalTermsText3">2. <strong>Sorumluluk Reddi:</strong> Namaz vakitleri Diyanet İşleri Başkanlığı veya güvenilir kaynak baz alınarak sunulsa da, seyahat veya coğrafi durumlarda vakitleri yerel takvimlerle teyit etmek kullanıcının sorumluluğundadır.</p>
         </div>
     </div>
@@ -434,10 +473,37 @@
         localStorage.setItem('prayer_reminder_time', reminderTime);
     }
 
-    // YENİ EKLENEN: Özel renk kaydetme fonksiyonu
-    function saveCustomAccent(color) {
-        document.documentElement.style.setProperty('--accent-color', color);
-        localStorage.setItem('custom_accent', color);
+    // Renkleri Canlı Önizleme
+    function previewColor(type, val) {
+        if(type === 'accent') document.documentElement.style.setProperty('--accent-color', val);
+        if(type === 'text') document.documentElement.style.setProperty('--text-color', val);
+        if(type === 'bg') {
+            document.documentElement.style.setProperty('--bg-color', val);
+            document.documentElement.style.setProperty('--card-bg', val);
+        }
+    }
+
+    // Tüm Sayfalara Uygula / Kaydet
+    function applyColorsToAll() {
+        const accent = document.getElementById('accentPicker').value;
+        const text = document.getElementById('textPicker').value;
+        const bg = document.getElementById('bgPicker').value;
+
+        localStorage.setItem('custom_accent', accent);
+        localStorage.setItem('custom_text', text);
+        localStorage.setItem('custom_bg', bg);
+        
+        alert("Renkler başarıyla uygulandı ve kaydedildi!");
+        toggleModal('colorSettingsModal');
+    }
+
+    // Varsayılan Renklere Dön
+    function resetColors() {
+        localStorage.removeItem('custom_accent');
+        localStorage.removeItem('custom_text');
+        localStorage.removeItem('custom_bg');
+        alert("Varsayılan renklere dönülüyor...");
+        location.reload();
     }
 
     function toggleModal(modalId) {
@@ -450,6 +516,7 @@
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
         const lang = localStorage.getItem('user_lang') || 'tr';
         applyTranslations(lang);
+        if(!localStorage.getItem('custom_bg')) location.reload();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -468,11 +535,15 @@
         const savedReminder = localStorage.getItem('prayer_reminder_time') || '10';
         document.getElementById('reminderTimeSelect').value = savedReminder;
 
-        // Kayıtlı özel renk varsa renk seçici kutusunun değerini güncelle
-        const savedAccent = localStorage.getItem('custom_accent');
-        if (savedAccent) {
-            document.getElementById('accentColorPicker').value = savedAccent;
-        }
+        // Renk Kutularını Kayıtlı Değerlerle Doldur
+        const style = getComputedStyle(document.documentElement);
+        const currentAccent = localStorage.getItem('custom_accent') || style.getPropertyValue('--accent-color').trim();
+        const currentText = localStorage.getItem('custom_text') || style.getPropertyValue('--text-color').trim();
+        const currentBg = localStorage.getItem('custom_bg') || style.getPropertyValue('--bg-color').trim();
+
+        document.getElementById('accentPicker').value = currentAccent.length === 7 ? currentAccent : '#10b981';
+        document.getElementById('textPicker').value = currentText.length === 7 ? currentText : '#f8fafc';
+        document.getElementById('bgPicker').value = currentBg.length === 7 ? currentBg : '#0b1120';
         
         applyTranslations(savedLang);
     });
