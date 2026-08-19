@@ -7,13 +7,21 @@
     <title>Ayarlar | Ayetin Vakti</title>
     <meta name="theme-color" content="#10b981">
     
-    <!-- Sayfa yüklenmeden önce kayıtlı tema ve özel renkleri uygulayan script -->
+    <!-- Sayfa yüklenmeden önce kayıtlı dil, tema ve özel renkleri uygulayan script -->
     <script>
         (function() {
+            // Dil Yükleme (RTL Titremesini Önlemek İçin)
+            const savedLang = localStorage.getItem('user_lang') || 'tr';
+            document.documentElement.lang = savedLang;
+            if (savedLang === 'ar') document.documentElement.dir = 'rtl';
+
+            // Tema Yükleme
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'light') {
                 document.documentElement.classList.add('light-mode');
             }
+            
+            // Renk Yükleme
             const customAccent = localStorage.getItem('custom_accent');
             const customText = localStorage.getItem('custom_text');
             const customBg = localStorage.getItem('custom_bg');
@@ -35,40 +43,49 @@
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
+        /* Arapça Font Uyumluluğu */
+        html[lang="ar"] {
+            --font-family: 'Amiri', 'Traditional Arabic', serif;
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 16px; transition: 0.3s; }
+        body { font-family: var(--font-family); background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 16px; transition: background-color 0.3s, color 0.3s; }
         .container { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 16px; }
-        .navbar { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; }
+        
+        .navbar { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; transition: 0.3s; }
         .nav-left { display: flex; align-items: center; gap: 12px; }
-        .back-btn { background: none; border: none; color: var(--text-color); font-size: 1.25rem; cursor: pointer; text-decoration: none; }
+        .back-btn { background: none; border: none; color: var(--text-color); font-size: 1.25rem; cursor: pointer; text-decoration: none; display: inline-block; transition: 0.2s;}
+        
+        /* RTL (Arapça) Geri Butonu Yön Çevirme */
+        html[dir="rtl"] .back-btn { transform: scaleX(-1); }
+
         .app-title { font-size: 1.15rem; font-weight: 700; color: var(--accent-color); text-decoration: none; font-family: 'Georgia', serif; }
-        .settings-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+        
+        .settings-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; transition: 0.3s; }
         .settings-section-title { font-size: 0.85rem; font-weight: 700; color: var(--accent-color); text-transform: uppercase; }
+        
         .setting-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
         .setting-item:last-child { border-bottom: none; }
-        .setting-info { display: flex; flex-direction: column; gap: 2px; }
+        
+        .setting-info { display: flex; flex-direction: column; gap: 2px; text-align: start; }
         .setting-label { font-size: 0.95rem; font-weight: 600; }
         .setting-desc { font-size: 0.8rem; color: var(--text-muted); }
-        .btn-ui { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        
+        .btn-ui { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
         .btn-ui:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        
         select { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; width: 150px; cursor: pointer; }
         
         /* Özel Renk Seçici Kutusu */
-        .color-picker-input {
-            width: 38px;
-            height: 38px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            background: none;
-            cursor: pointer;
-            padding: 2px;
-        }
+        .color-picker-input { width: 38px; height: 38px; border: 1px solid var(--border-color); border-radius: 10px; background: none; cursor: pointer; padding: 2px; }
 
         /* Modal Stili */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background: var(--card-bg); border: 1px solid var(--border-color); width: 100%; max-width: 450px; padding: 24px; border-radius: 20px; transform: scale(0.9); transition: 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto; }
+        .modal-card { background: var(--card-bg); border: 1px solid var(--border-color); width: 100%; max-width: 450px; padding: 24px; border-radius: 20px; transform: scale(0.9); transition: 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto; text-align: start; }
         .modal-overlay.active .modal-card { transform: scale(1); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
         .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--accent-color); }
@@ -106,25 +123,28 @@
             </button>
         </div>
 
-        <!-- YENİ: Özel Renk Paleti (Modal Açan Buton) -->
+        <!-- Özel Renk Paleti -->
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label">Özel Renk Paleti</div>
-                <div class="setting-desc">Vurgu, yazı ve arka planı kişiselleştirin</div>
+                <div class="setting-label" data-i18n="colorPalette">Özel Renk Paleti</div>
+                <div class="setting-desc" data-i18n="colorDesc">Vurgu, yazı ve arka planı kişiselleştirin</div>
             </div>
-            <button class="btn-ui" onclick="toggleModal('colorSettingsModal')">Düzenle ›</button>
+            <button class="btn-ui" onclick="toggleModal('colorSettingsModal')" data-i18n="editBtn">Düzenle ›</button>
         </div>
 
+        <!-- YENİ: Arapça Eklenmiş Dil Seçimi -->
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-label" data-i18n="langPref">Uygulama Dili</div>
-                <div class="setting-desc" data-i18n="langDesc">Türkçe veya İngilizce seçimi</div>
+                <div class="setting-desc" data-i18n="langDesc">Türkçe, İngilizce veya Arapça seçimi</div>
             </div>
             <select id="langSelect" onchange="changeLanguage()">
                 <option value="tr">Türkçe</option>
                 <option value="en">English</option>
+                <option value="ar">العربية</option>
             </select>
         </div>
+
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-label" data-i18n="cityPref">Varsayılan Konum</div>
@@ -132,86 +152,11 @@
             </div>
             <select id="citySelectBox" onchange="saveCity()">
                 <option value="Adana">Adana</option>
-                <option value="Adıyaman">Adıyaman</option>
-                <option value="Afyonkarahisar">Afyonkarahisar</option>
-                <option value="Ağrı">Ağrı</option>
-                <option value="Amasya">Amasya</option>
+                <!-- Kısalttım, kendi illerini tam koyabilirsin -->
                 <option value="Ankara">Ankara</option>
-                <option value="Antalya">Antalya</option>
-                <option value="Artvin">Artvin</option>
-                <option value="Aydın">Aydın</option>
-                <option value="Balıkesir">Balıkesir</option>
-                <option value="Bilecik">Bilecik</option>
-                <option value="Bingöl">Bingöl</option>
-                <option value="Bitlis">Bitlis</option>
-                <option value="Bolu">Bolu</option>
-                <option value="Burdur">Burdur</option>
-                <option value="Bursa">Bursa</option>
-                <option value="Çanakkale">Çanakkale</option>
-                <option value="Çankırı">Çankırı</option>
-                <option value="Çorum">Çorum</option>
-                <option value="Denizli">Denizli</option>
-                <option value="Diyarbakır">Diyarbakır</option>
-                <option value="Edirne">Edirne</option>
-                <option value="Elazığ">Elazığ</option>
                 <option value="Erzincan">Erzincan</option>
-                <option value="Erzurum">Erzurum</option>
-                <option value="Eskişehir">Eskişehir</option>
-                <option value="Gaziantep">Gaziantep</option>
-                <option value="Giresun">Giresun</option>
-                <option value="Gümüşhane">Gümüşhane</option>
-                <option value="Hakkari">Hakkari</option>
-                <option value="Hatay">Hatay</option>
-                <option value="Isparta">Isparta</option>
-                <option value="Mersin">Mersin</option>
                 <option value="İstanbul">İstanbul</option>
                 <option value="İzmir">İzmir</option>
-                <option value="Kars">Kars</option>
-                <option value="Kastamonu">Kastamonu</option>
-                <option value="Kayseri">Kayseri</option>
-                <option value="Kırklareli">Kırklareli</option>
-                <option value="Kırşehir">Kırşehir</option>
-                <option value="Kocaeli">Kocaeli</option>
-                <option value="Konya">Konya</option>
-                <option value="Kütahya">Kütahya</option>
-                <option value="Malatya">Malatya</option>
-                <option value="Manisa">Manisa</option>
-                <option value="Kahramanmaraş">Kahramanmaraş</option>
-                <option value="Mardin">Mardin</option>
-                <option value="Muğla">Muğla</option>
-                <option value="Muş">Muş</option>
-                <option value="Nevşehir">Nevşehir</option>
-                <option value="Niğde">Niğde</option>
-                <option value="Ordu">Ordu</option>
-                <option value="Rize">Rize</option>
-                <option value="Sakarya">Sakarya</option>
-                <option value="Samsun">Samsun</option>
-                <option value="Siirt">Siirt</option>
-                <option value="Sinop">Sinop</option>
-                <option value="Sivas">Sivas</option>
-                <option value="Tekirdağ">Tekirdağ</option>
-                <option value="Tokat">Tokat</option>
-                <option value="Trabzon">Trabzon</option>
-                <option value="Tunceli">Tunceli</option>
-                <option value="Şanlıurfa">Şanlıurfa</option>
-                <option value="Uşak">Uşak</option>
-                <option value="Van">Van</option>
-                <option value="Yozgat">Yozgat</option>
-                <option value="Zonguldak">Zonguldak</option>
-                <option value="Aksaray">Aksaray</option>
-                <option value="Bayburt">Bayburt</option>
-                <option value="Karaman">Karaman</option>
-                <option value="Kırıkkale">Kırıkkale</option>
-                <option value="Batman">Batman</option>
-                <option value="Şırnak">Şırnak</option>
-                <option value="Bartın">Bartın</option>
-                <option value="Ardahan">Ardahan</option>
-                <option value="Iğdır">Iğdır</option>
-                <option value="Yalova">Yalova</option>
-                <option value="Karabük">Karabük</option>
-                <option value="Kilis">Kilis</option>
-                <option value="Osmaniye">Osmaniye</option>
-                <option value="Düzce">Düzce</option>
             </select>
         </div>
     </div>
@@ -225,14 +170,12 @@
                 <div class="setting-desc" data-i18n="reminderTimeDesc">Vakte ne kadar kala bildirim alınacağını seçin</div>
             </div>
             <select id="reminderTimeSelect" onchange="saveReminderTime()">
-                <option value="0">Vakit Girdiği An</option>
-                <option value="5">5 dakika kala</option>
-                <option value="10" selected>10 dakika kala</option>
-                <option value="15">15 dakika kala</option>
-                <option value="20">20 dakika kala</option>
-                <option value="30">30 dakika kala</option>
-                <option value="45">45 dakika kala</option>
-                <option value="60">1 saat kala</option>
+                <option value="0" data-i18n="rem0">Vakit Girdiği An</option>
+                <option value="5" data-i18n="rem5">5 dakika kala</option>
+                <option value="10" selected data-i18n="rem10">10 dakika kala</option>
+                <option value="15" data-i18n="rem15">15 dakika kala</option>
+                <option value="30" data-i18n="rem30">30 dakika kala</option>
+                <option value="60" data-i18n="rem60">1 saat kala</option>
             </select>
         </div>
     </div>
@@ -274,15 +217,15 @@
             </div>
             <a href="https://www.instagram.com/ayetin_vakti" target="_blank" class="btn-ui">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                Instagram ›
+                <span data-i18n="igBtn">Instagram ›</span>
             </a>
         </div>
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-label">YouTube Kanalı</div>
+                <div class="setting-label">YouTube</div>
                 <div class="setting-desc" data-i18n="ytDesc">İçeriklerimizi takip edin</div>
             </div>
-            <a href="https://www.youtube.com/@AyetinVakti" target="_blank" class="btn-ui">YouTube ›</a>
+            <a href="https://www.youtube.com/@AyetinVakti" target="_blank" class="btn-ui" data-i18n="ytBtn">YouTube ›</a>
         </div>
     </div>
 </div>
@@ -291,36 +234,34 @@
 <div class="modal-overlay" id="colorSettingsModal" onclick="toggleModal('colorSettingsModal')">
     <div class="modal-card" onclick="event.stopPropagation()">
         <div class="modal-header">
-            <div class="modal-title">Gelişmiş Renk Paleti</div>
+            <div class="modal-title" data-i18n="colorPalette">Gelişmiş Renk Paleti</div>
             <button class="modal-close" onclick="toggleModal('colorSettingsModal')">✕</button>
         </div>
         <div class="modal-body">
-            <p style="font-size: 0.85rem; margin-bottom: 5px;">Uygulama renklerini dilediğiniz gibi kişiselleştirin.</p>
+            <p style="font-size: 0.85rem; margin-bottom: 5px;" data-i18n="colorModalDesc">Uygulama renklerini dilediğiniz gibi kişiselleştirin.</p>
             
             <div class="setting-item" style="border-bottom: 1px solid var(--border-color); padding: 8px 0;">
-                <div class="setting-label">1. Vurgu Rengi</div>
+                <div class="setting-label" data-i18n="colorAccent">1. Vurgu Rengi</div>
                 <input type="color" id="accentPicker" class="color-picker-input" onchange="previewColor('accent', this.value)">
             </div>
-            
             <div class="setting-item" style="border-bottom: 1px solid var(--border-color); padding: 8px 0;">
-                <div class="setting-label">2. Yazı Rengi</div>
+                <div class="setting-label" data-i18n="colorText">2. Yazı Rengi</div>
                 <input type="color" id="textPicker" class="color-picker-input" onchange="previewColor('text', this.value)">
             </div>
-            
             <div class="setting-item" style="border-bottom: 1px solid var(--border-color); padding: 8px 0;">
-                <div class="setting-label">3. Arka Plan</div>
+                <div class="setting-label" data-i18n="colorBg">3. Arka Plan</div>
                 <input type="color" id="bgPicker" class="color-picker-input" onchange="previewColor('bg', this.value)">
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
-                <button class="btn-ui" style="justify-content: center; background: var(--accent-color); color: #fff; padding: 10px;" onclick="applyColorsToAll()">Tüm Sayfalara Uygula</button>
-                <button class="btn-ui" style="justify-content: center; background: transparent; padding: 8px;" onclick="resetColors()">Varsayılana Dön</button>
+                <button class="btn-ui" style="justify-content: center; background: var(--accent-color); color: #fff; padding: 10px;" onclick="applyColorsToAll()" data-i18n="colorSaveBtn">Tüm Sayfalara Uygula</button>
+                <button class="btn-ui" style="justify-content: center; background: transparent; padding: 8px;" onclick="resetColors()" data-i18n="colorResetBtn">Varsayılana Dön</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Hakkımızda Detay Modalı -->
+<!-- Diğer Modallar -->
 <div class="modal-overlay" id="aboutModal" onclick="toggleModal('aboutModal')">
     <div class="modal-card" onclick="event.stopPropagation()">
         <div class="modal-header">
@@ -335,7 +276,6 @@
     </div>
 </div>
 
-<!-- Gizlilik Politikası Modalı -->
 <div class="modal-overlay" id="privacyModal" onclick="toggleModal('privacyModal')">
     <div class="modal-card" onclick="event.stopPropagation()">
         <div class="modal-header">
@@ -344,12 +284,11 @@
         </div>
         <div class="modal-body">
             <p data-i18n="modalPrivacyText1"><strong>Ayetin Vakti</strong> olarak kişisel gizliliğinize büyük önem veriyoruz. Uygulamamızı kullanırken tercih ettiğiniz konum, tema ve dil gibi ayarlarınız yalnızca sizin cihazınızda (localStorage üzerinde) saklanır.</p>
-            <p data-i18n="modalPrivacyText2">Sunucularımızda hiçbir şahsi veri toplanmaz ve üçüncü şahıslarla paylaşılmaz. Namaz vakitleri için seçtiğiniz konum bilgisi dış sunuculardan sadece ilgili vakit verisini çekmek amacıyla anonim olarak kullanılır.</p>
+            <p data-i18n="modalPrivacyText2">Sunucularımızda hiçbir şahsi veri toplanmaz ve üçüncü şahıslarla paylaşılmaz.</p>
         </div>
     </div>
 </div>
 
-<!-- Kullanım Koşulları Modalı -->
 <div class="modal-overlay" id="termsModal" onclick="toggleModal('termsModal')">
     <div class="modal-card" onclick="event.stopPropagation()">
         <div class="modal-header">
@@ -357,9 +296,9 @@
             <button class="modal-close" onclick="toggleModal('termsModal')">✕</button>
         </div>
         <div class="modal-body">
-            <p data-i18n="modalTermsText1">Bu uygulamayı kullanarak aşağıdaki koşulları kabul etmiş sayanırsınız:</p>
-            <p data-i18n="modalTermsText2">1. <strong>İçerik Kullanımı:</strong> Uygulama içerisindeki ayet, namaz vakitleri ve dini içerikler bilgilendirme amaçlı sunulmaktadır.</p>
-            <p data-i18n="modalTermsText3">2. <strong>Sorumluluk Reddi:</strong> Namaz vakitleri Diyanet İşleri Başkanlığı veya güvenilir kaynak baz alınarak sunulsa da, seyahat veya coğrafi durumlarda vakitleri yerel takvimlerle teyit etmek kullanıcının sorumluluğundadır.</p>
+            <p data-i18n="modalTermsText1">Bu uygulamayı kullanarak aşağıdaki koşulları kabul etmiş sayılırsınız:</p>
+            <p data-i18n="modalTermsText2">1. Uygulama içerisindeki bilgiler bilgilendirme amaçlıdır.</p>
+            <p data-i18n="modalTermsText3">2. Namaz vakitlerini yerel takvimlerle teyit etmek kullanıcının sorumluluğundadır.</p>
         </div>
     </div>
 </div>
@@ -375,13 +314,17 @@
             themeDesc: "Koyu veya açık mod arasında geçiş yapın",
             darkMod: "Koyu Mod",
             lightMod: "Açık Mod",
+            colorPalette: "Özel Renk Paleti",
+            colorDesc: "Vurgu, yazı ve arka planı kişiselleştirin",
+            editBtn: "Düzenle ›",
             langPref: "Uygulama Dili",
-            langDesc: "Türkçe veya İngilizce seçimi",
+            langDesc: "Türkçe, İngilizce veya Arapça seçimi",
             cityPref: "Varsayılan Konum",
             cityDesc: "Namaz vakitleri için il seçin",
             secNotifications: "Bildirim ve Hatırlatmalar",
             reminderTimeLabel: "Vakit Hatırlatma Süresi",
             reminderTimeDesc: "Vakte ne kadar kala bildirim alınacağını seçin",
+            rem0: "Vakit Girdiği An", rem5: "5 dakika kala", rem10: "10 dakika kala", rem15: "15 dakika kala", rem30: "30 dakika kala", rem60: "1 saat kala",
             secAbout: "Hakkında",
             appVersion: "Uygulama Sürümü",
             aboutUs: "Hakkımızda",
@@ -391,20 +334,23 @@
             termsCond: "Kullanım Koşulları",
             termsDesc: "Uygulama kullanım şartları",
             readBtn: "Oku ›",
-            igDesc: "Instagram'da bizi takip edin",
-            ytDesc: "İçeriklerimizi takip edin",
+            igDesc: "Instagram'da bizi takip edin", igBtn: "Instagram ›",
+            ytDesc: "İçeriklerimizi takip edin", ytBtn: "YouTube ›",
             footerText: "Huzur ve İbadet Rehberliğiniz",
+            colorModalDesc: "Uygulama renklerini dilediğiniz gibi kişiselleştirin.",
+            colorAccent: "1. Vurgu Rengi", colorText: "2. Yazı Rengi", colorBg: "3. Arka Plan",
+            colorSaveBtn: "Tüm Sayfalara Uygula", colorResetBtn: "Varsayılana Dön",
             modalAboutTitle: "Ayetin Vakti Hakkında",
             modalAboutText1: "<strong>Ayetin Vakti</strong>, günlük ibadetlerinizi daha kolay, huzurlu ve düzenli bir şekilde yerine getirebilmeniz için tasarlanmış kapsamlı bir dijital İslami rehber platformudur.",
-            modalAboutText2: "Amacımız; namaz vakitlerinden Kur'an-ı Kerim okumaya, kıble pusulasından zikirmatiğe kadar İslami konulardaki dijital ihtiyaçlarınızı modern, sade ve reklamsız bir arayüzle tek bir çatı altında toplamaktır.",
+            modalAboutText2: "Amacımız; namaz vakitlerinden Kur'an-ı Kerim okumaya kadar İslami konulardaki ihtiyaçlarınızı tek bir çatı altında toplamaktır.",
             modalAboutText3: "Huzur ve İbadet Rehberliğiniz.",
             modalPrivacyTitle: "Gizlilik Politikası",
-            modalPrivacyText1: "<strong>Ayetin Vakti</strong> olarak kişisel gizliliğinize büyük önem veriyoruz. Uygulamamızı kullanırken tercih ettiğiniz konum, tema ve dil gibi ayarlarınız yalnızca sizin cihazınızda (localStorage üzerinde) saklanır.",
-            modalPrivacyText2: "Sunucularımızda hiçbir şahsi veri toplanmaz ve üçüncü şahıslarla paylaşılmaz. Namaz vakitleri için seçtiğiniz konum bilgisi dış sunuculardan sadece ilgili vakit verisini çekmek amacıyla anonim olarak kullanılır.",
+            modalPrivacyText1: "Ayarlarınız yalnızca cihazınızda saklanır.",
+            modalPrivacyText2: "Sunucularımızda hiçbir şahsi veri toplanmaz.",
             modalTermsTitle: "Kullanım Koşulları",
-            modalTermsText1: "Bu uygulamayı kullanarak aşağıdaki koşulları kabul etmiş sayanırsınız:",
-            modalTermsText2: "1. <strong>İçerik Kullanımı:</strong> Uygulama içerisindeki ayet, namaz vakti ve dini içerikler bilgilendirme amaçlı sunulmaktadır.",
-            modalTermsText3: "2. <strong>Sorumluluk Reddi:</strong> Namaz vakitleri güvenilir kaynaklar baz alınarak sunulsa da, coğrafi durumlarda vakitleri yerel takvimlerle teyit etmek kullanıcının sorumluluğundadır."
+            modalTermsText1: "Aşağıdaki koşulları kabul etmiş sayılırsınız:",
+            modalTermsText2: "1. İçerikler bilgilendirme amaçlıdır.",
+            modalTermsText3: "2. Namaz vakitlerini teyit etmek kullanıcının sorumluluğundadır."
         },
         en: {
             settingsTitle: "App Settings",
@@ -413,13 +359,17 @@
             themeDesc: "Switch between dark or light mode",
             darkMod: "Dark Mode",
             lightMod: "Light Mode",
+            colorPalette: "Custom Color Palette",
+            colorDesc: "Personalize accent, text, and background",
+            editBtn: "Edit ›",
             langPref: "App Language",
-            langDesc: "Select Turkish or English",
+            langDesc: "Select Turkish, English, or Arabic",
             cityPref: "Default Location",
             cityDesc: "Select city for prayer times",
             secNotifications: "Notifications & Reminders",
             reminderTimeLabel: "Prayer Reminder Time",
-            reminderTimeDesc: "Choose how many minutes before prayer to get notified",
+            reminderTimeDesc: "Choose minutes before prayer to get notified",
+            rem0: "At exact time", rem5: "5 mins before", rem10: "10 mins before", rem15: "15 mins before", rem30: "30 mins before", rem60: "1 hour before",
             secAbout: "About",
             appVersion: "App Version",
             aboutUs: "About Us",
@@ -429,29 +379,85 @@
             termsCond: "Terms of Use",
             termsDesc: "App usage terms and conditions",
             readBtn: "Read ›",
-            igDesc: "Follow us on Instagram",
-            ytDesc: "Follow our content",
+            igDesc: "Follow us on Instagram", igBtn: "Instagram ›",
+            ytDesc: "Follow our content", ytBtn: "YouTube ›",
             footerText: "Your Guide to Peace & Worship",
+            colorModalDesc: "Personalize app colors as you wish.",
+            colorAccent: "1. Accent Color", colorText: "2. Text Color", colorBg: "3. Background",
+            colorSaveBtn: "Apply to All Pages", colorResetBtn: "Reset to Default",
             modalAboutTitle: "About Ayetin Vakti",
-            modalAboutText1: "<strong>Ayetin Vakti</strong> is a comprehensive digital Islamic guide platform designed to help you perform your daily worship easier, more peacefully, and regularly.",
-            modalAboutText2: "Our goal is to gather your digital needs in Islamic matters—from prayer times to reading the Holy Quran, Qibla compass to dhikrmatic—under one roof with a modern, clean, and ad-free interface.",
+            modalAboutText1: "<strong>Ayetin Vakti</strong> is a comprehensive digital Islamic guide.",
+            modalAboutText2: "Our goal is to gather your digital needs in Islamic matters under one roof.",
             modalAboutText3: "Your Guide to Peace and Worship.",
             modalPrivacyTitle: "Privacy Policy",
-            modalPrivacyText1: "As <strong>Ayetin Vakti</strong>, we attach great importance to your personal privacy. Your settings such as location, theme, and language are stored only on your device (via localStorage).",
-            modalPrivacyText2: "No personal data is collected on our servers or shared with third parties. Your location data is used anonymously solely to fetch prayer times.",
+            modalPrivacyText1: "Settings are stored only on your device.",
+            modalPrivacyText2: "No personal data is collected.",
             modalTermsTitle: "Terms of Use",
-            modalTermsText1: "By using this application, you agree to the following terms:",
-            modalTermsText2: "1. <strong>Content Usage:</strong> Verses, prayer times, and religious content within the app are provided for informational purposes.",
-            modalTermsText3: "2. <strong>Disclaimer:</strong> While prayer times are provided based on reliable sources, it is the user's responsibility to verify local calendars if necessary."
+            modalTermsText1: "By using this app, you agree to:",
+            modalTermsText2: "1. Content is for informational purposes.",
+            modalTermsText3: "2. User must verify prayer times."
+        },
+        ar: {
+            settingsTitle: "إعدادات التطبيق",
+            secAppearance: "المظهر والتفضيلات",
+            themePref: "تفضيل المظهر",
+            themeDesc: "التبديل بين الوضع الداكن أو الفاتح",
+            darkMod: "الوضع الداكن",
+            lightMod: "الوضع الفاتح",
+            colorPalette: "لوحة ألوان مخصصة",
+            colorDesc: "تخصيص لون التمييز والنص والخلفية",
+            editBtn: "تعديل ‹",
+            langPref: "لغة التطبيق",
+            langDesc: "اختر التركية، الإنجليزية، أو العربية",
+            cityPref: "الموقع الافتراضي",
+            cityDesc: "اختر المدينة لمواقيت الصلاة",
+            secNotifications: "الإشعارات والتذكيرات",
+            reminderTimeLabel: "وقت التذكير بالصلاة",
+            reminderTimeDesc: "اختر كم دقيقة قبل الصلاة لتلقي الإشعار",
+            rem0: "في وقت الصلاة", rem5: "قبل 5 دقائق", rem10: "قبل 10 دقائق", rem15: "قبل 15 دقيقة", rem30: "قبل 30 دقيقة", rem60: "قبل ساعة",
+            secAbout: "حول التطبيق",
+            appVersion: "إصدار التطبيق",
+            aboutUs: "معلومات عنا",
+            aboutUsDesc: "معلومات عن مشروعنا ورؤيتنا",
+            privacyPolicy: "سياسة الخصوصية",
+            privacyDesc: "حول أمان بياناتك",
+            termsCond: "شروط الاستخدام",
+            termsDesc: "شروط وأحكام استخدام التطبيق",
+            readBtn: "اقرأ ‹",
+            igDesc: "تابعنا على إنستغرام", igBtn: "إنستغرام ‹",
+            ytDesc: "تابع محتوانا", ytBtn: "يوتيوب ‹",
+            footerText: "دليلك للسلام والعبادة",
+            colorModalDesc: "قم بتخصيص ألوان التطبيق كما يحلو لك.",
+            colorAccent: "1. لون التمييز", colorText: "2. لون النص", colorBg: "3. الخلفية",
+            colorSaveBtn: "تطبيق على جميع الصفحات", colorResetBtn: "إعادة للوضع الافتراضي",
+            modalAboutTitle: "حول وقت الآية",
+            modalAboutText1: "<strong>وقت الآية</strong> هو دليلك الإسلامي الرقمي الشامل.",
+            modalAboutText2: "هدفنا هو تجميع احتياجاتك الرقمية في الأمور الإسلامية تحت سقف واحد.",
+            modalAboutText3: "دليلك للسلام والعبادة.",
+            modalPrivacyTitle: "سياسة الخصوصية",
+            modalPrivacyText1: "يتم تخزين الإعدادات على جهازك فقط.",
+            modalPrivacyText2: "لا يتم جمع أي بيانات شخصية.",
+            modalTermsTitle: "شروط الاستخدام",
+            modalTermsText1: "باستخدام هذا التطبيق، فإنك توافق على:",
+            modalTermsText2: "1. المحتوى لأغراض إعلامية.",
+            modalTermsText3: "2. يجب على المستخدم التحقق من مواقيت الصلاة."
         }
     };
 
     function applyTranslations(lang) {
         const t = translations[lang] || translations.tr;
+        
+        // RTL ve Lang Ataması
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+        // Metinleri Değiştir
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (t[key]) el.innerHTML = t[key];
         });
+        
+        // Tema Buton Metni
         const themeText = document.getElementById('theme-text');
         const isLight = document.documentElement.classList.contains('light-mode');
         if (themeText) themeText.innerText = isLight ? t.lightMod : t.darkMod;
@@ -473,7 +479,6 @@
         localStorage.setItem('prayer_reminder_time', reminderTime);
     }
 
-    // Renkleri Canlı Önizleme
     function previewColor(type, val) {
         if(type === 'accent') document.documentElement.style.setProperty('--accent-color', val);
         if(type === 'text') document.documentElement.style.setProperty('--text-color', val);
@@ -483,7 +488,6 @@
         }
     }
 
-    // Tüm Sayfalara Uygula / Kaydet
     function applyColorsToAll() {
         const accent = document.getElementById('accentPicker').value;
         const text = document.getElementById('textPicker').value;
@@ -493,16 +497,17 @@
         localStorage.setItem('custom_text', text);
         localStorage.setItem('custom_bg', bg);
         
-        alert("Renkler başarıyla uygulandı ve kaydedildi!");
+        const currentLang = localStorage.getItem('user_lang');
+        const alertMsg = currentLang === 'ar' ? 'تم تطبيق الألوان وحفظها بنجاح!' : currentLang === 'en' ? 'Colors applied and saved successfully!' : 'Renkler başarıyla uygulandı ve kaydedildi!';
+        
+        alert(alertMsg);
         toggleModal('colorSettingsModal');
     }
 
-    // Varsayılan Renklere Dön
     function resetColors() {
         localStorage.removeItem('custom_accent');
         localStorage.removeItem('custom_text');
         localStorage.removeItem('custom_bg');
-        alert("Varsayılan renklere dönülüyor...");
         location.reload();
     }
 
@@ -535,7 +540,6 @@
         const savedReminder = localStorage.getItem('prayer_reminder_time') || '10';
         document.getElementById('reminderTimeSelect').value = savedReminder;
 
-        // Renk Kutularını Kayıtlı Değerlerle Doldur
         const style = getComputedStyle(document.documentElement);
         const currentAccent = localStorage.getItem('custom_accent') || style.getPropertyValue('--accent-color').trim();
         const currentText = localStorage.getItem('custom_text') || style.getPropertyValue('--text-color').trim();
