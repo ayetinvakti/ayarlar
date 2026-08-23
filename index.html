@@ -133,7 +133,7 @@
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-label" data-i18n="editHomePref">Ana Sayfamı Düzenle</div>
-                <div class="setting-desc" data-i18n="editHomeDesc">Ana ekran kartlarının sırasını ve görünürlüğünü ayarlayın</div>
+                <div class="setting-desc" data-i18n="editHomeDesc">Ana ekran kartlarının sırasını, görünürlüğünü ve eklemelerini ayarlayın</div>
             </div>
             <button class="btn-ui" onclick="openHomeLayoutModal()" data-i18n="editBtn">Düzenle ›</button>
         </div>
@@ -254,7 +254,7 @@
 
     <!-- Bildirim ve Hatırlatma Ayarları -->
     <div class="settings-card">
-        <div class="settings-section-title" data-i18n="secNotifications">Bildirim ve Hatırlatmalar</div>
+        <div class="settings-section-title" data-i18n="secNotifications">Bildirim dan Hatırlatmalar</div>
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-label" data-i18n="reminderTimeLabel">Vakit Hatırlatma Süresi</div>
@@ -278,7 +278,7 @@
                 <div class="setting-label" data-i18n="appVersion">Uygulama Sürümü</div>
                 <div class="setting-desc">Ayetin Vakti Dijital İslami Yardımcı</div>
             </div>
-            <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-color);">v0.2.3</div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-color);">v0.2.4</div>
         </div>
         <div class="setting-item">
             <div class="setting-info">
@@ -360,15 +360,51 @@
             <button class="modal-close" onclick="toggleModal('homeLayoutModal')">✕</button>
         </div>
         <div class="modal-body">
-            <p style="font-size: 0.85rem; margin-bottom: 5px;" data-i18n="homeLayoutDesc">Kartların sırasını yukarı/aşağı taşıyarak değiştirebilir veya görünürlüğünü kapatabilirsiniz.</p>
+            <p style="font-size: 0.85rem; margin-bottom: 5px;" data-i18n="homeLayoutDesc">Kartların sırasını yukarı/aşağı taşıyarak değiştirebilir, gizleyebilir veya yeni hikaye tarzı araç butonları ekleyebilirsiniz.</p>
             
             <div id="layoutItemsContainer" style="display: flex; flex-direction: column; gap: 6px; margin: 10px 0;">
                 <!-- Dinamik olarak doldurulacak -->
             </div>
 
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+                <button class="btn-ui" style="flex: 1; justify-content: center; border-style: dashed;" onclick="openAddWidgetModal()" data-i18n="addWidgetBtn">+ Yeni Kart / Alan Ekle</button>
+            </div>
+
             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
                 <button class="btn-ui" style="justify-content: center; background: var(--accent-color); color: #fff; padding: 10px;" onclick="saveHomeLayout()" data-i18n="saveLayoutBtn">Düzenlemeyi Kaydet</button>
                 <button class="btn-ui" style="justify-content: center; background: transparent; padding: 8px;" onclick="resetHomeLayout()" data-i18n="resetLayoutBtn">Varsayılana Sıfırla</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- YENİ KART / WIDGET EKLEME MODALI (HİKAYE / KISAYOL TARZI) -->
+<div class="modal-overlay" id="addWidgetModal" onclick="toggleModal('addWidgetModal')">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-title" data-i18n="addWidgetTitle">Ana Ekrana Hızlı Alan Ekle</div>
+            <button class="modal-close" onclick="toggleModal('addWidgetModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size: 0.85rem; margin-bottom: 5px;" data-i18n="addWidgetDesc">Instagram hikayeleri tarzı yuvarlak buton veya özel widget olarak ana sayfaya eklemek istediğiniz aracı seçin:</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 8px; margin: 10px 0;">
+                <div class="layout-item">
+                    <span style="font-weight: 600;">📿 Zikirmatik Yuvarlak Alanı</span>
+                    <button class="btn-ui" onclick="addNewWidgetToLayout('Zikirmatik', 'zikirmatik.html', '📿')">Ekle ›</button>
+                </div>
+                <div class="layout-item">
+                    <span style="font-weight: 600;">🕌 5 Vakit Namaz Takipçisi</span>
+                    <button class="btn-ui" onclick="addNewWidgetToLayout('Namaz Takibi', 'namaz.html', '🕌')">Ekle ›</button>
+                </div>
+                <div class="layout-item">
+                    <span style="font-weight: 600;">🧭 Kıble Pusulası Alanı</span>
+                    <button class="btn-ui" onclick="addNewWidgetToLayout('Kıble Pusulası', 'kible.html', '🧭')">Ekle ›</button>
+                </div>
+                <div class="layout-item">
+                    <span style="font-weight: 600;">📖 Kur'an-ı Kerim Hatim Alanı</span>
+                    <button class="btn-ui" onclick="addNewWidgetToLayout('Kuran Hatmi', 'kuran.html', '📖')">Ekle ›</button>
+                </div>
             </div>
         </div>
     </div>
@@ -431,10 +467,13 @@
             colorDesc: "Vurgu, yazı ve arka planı kişiselleştirin",
             editBtn: "Düzenle ›",
             editHomePref: "Ana Sayfamı Düzenle",
-            editHomeDesc: "Ana ekran kartlarının sırasını ve görünürlüğünü ayarlayın",
-            homeLayoutDesc: "Kartların sırasını yukarı/aşağı taşıyarak değiştirebilir veya görünürlüğünü kapatabilirsiniz.",
+            editHomeDesc: "Ana ekran kartlarının sırasını, görünürlüğünü ve eklemelerini ayarlayın",
+            homeLayoutDesc: "Kartların sırasını yukarı/aşağı taşıyarak değiştirebilir, gizleyebilir veya yeni hikaye tarzı araç butonları ekleyebilirsiniz.",
             saveLayoutBtn: "Düzenlemeyi Kaydet",
             resetLayoutBtn: "Varsayılana Sıfırla",
+            addWidgetBtn: "+ Yeni Kart / Alan Ekle",
+            addWidgetTitle: "Ana Ekrana Hızlı Alan Ekle",
+            addWidgetDesc: "Instagram hikayeleri tarzı yuvarlak buton veya özel widget olarak ana sayfaya eklemek istediğiniz aracı seçin:",
             langPref: "Uygulama Dili",
             langDesc: "Türkçe, İngilizce veya Arapça seçimi",
             cityPref: "Varsayılan Konum",
@@ -481,10 +520,13 @@
             colorDesc: "Personalize accent, text, and background",
             editBtn: "Edit ›",
             editHomePref: "Customize Home Page",
-            editHomeDesc: "Adjust home card order and visibility",
-            homeLayoutDesc: "Change card order by moving them up/down or toggle visibility.",
+            editHomeDesc: "Adjust home card order, visibility, and widgets",
+            homeLayoutDesc: "Change card order, hide them, or add new story-style widget buttons.",
             saveLayoutBtn: "Save Layout",
             resetLayoutBtn: "Reset to Default",
+            addWidgetBtn: "+ Add New Widget / Area",
+            addWidgetTitle: "Add Quick Area to Home",
+            addWidgetDesc: "Select the tool you want to add to your home screen as a story-style round button or custom widget:",
             langPref: "App Language",
             langDesc: "Select Turkish, English, or Arabic",
             cityPref: "Default Location",
@@ -531,10 +573,13 @@
             colorDesc: "تخصيص لون التمييز والنص والخلفية",
             editBtn: "تعديل ‹",
             editHomePref: "تخصيص الصفحة الرئيسية",
-            editHomeDesc: "ضبط ترتيب بطاقات الشاشة الرئيسية ومدى ظهورها",
-            homeLayoutDesc: "يمكنك تغيير ترتيب البطاقات للألاسفل أو للأعلى أو إيقاف إظهارها.",
+            editHomeDesc: "ضبط ترتيب بطاقات الشاشة الرئيسية وإضافاتها",
+            homeLayoutDesc: "يمكنك تغيير ترتيب البطاقات أو إخفاؤها أو إضافة أزرار أدوات جديدة.",
             saveLayoutBtn: "حفظ التخطيط",
             resetLayoutBtn: "إعادة للوضع الافتراضي",
+            addWidgetBtn: "+ إضافة أداة / منطقة جديدة",
+            addWidgetTitle: "إضافة منطقة سريعة للرئيسية",
+            addWidgetDesc: "اختر الأداة التي تريد إضافتها لشاشتك الرئيسية كزر دائري بأسلوب القصص:",
             langPref: "لغة التطبيق",
             langDesc: "اختر التركية، الإنجليزية، أو العربية",
             cityPref: "الموقع الافتراضي",
@@ -572,14 +617,14 @@
         }
     };
 
-    // Ana Sayfa Kart Listesi Tanımları
+    // Ana Sayfa Varsayılan Kart Listesi
     const defaultHomeBlocks = [
-        { id: 'block-prayer', name: 'Günün Duası / Ayeti' },
-        { id: 'block-location', name: 'Konum ve Tarih Bandı' },
-        { id: 'block-quiz', name: 'İslam Dini ve Kültürü Bilgi Testi' },
-        { id: 'block-quotes', name: 'Günün Hikmetleri' },
-        { id: 'block-didyouknow', name: 'Biliyor musunuz?' },
-        { id: 'block-esma', name: 'Esmaül Hüsna' }
+        { id: 'block-prayer', name: 'Günün Duası / Ayeti', visible: true },
+        { id: 'block-location', name: 'Konum ve Tarih Bandı', visible: true },
+        { id: 'block-quiz', name: 'İslam Dini ve Kültürü Bilgi Testi', visible: true },
+        { id: 'block-quotes', name: 'Günün Hikmetleri', visible: true },
+        { id: 'block-didyouknow', name: 'Biliyor musunuz?', visible: true },
+        { id: 'block-esma', name: 'Esmaül Hüsna', visible: true }
     ];
 
     function openHomeLayoutModal() {
@@ -587,9 +632,28 @@
         toggleModal('homeLayoutModal');
     }
 
+    function openAddWidgetModal() {
+        toggleModal('addWidgetModal');
+    }
+
+    function addNewWidgetToLayout(name, link, icon) {
+        let savedLayout = JSON.parse(localStorage.getItem('home_layout')) || [...defaultHomeBlocks];
+        const newBlock = {
+            id: 'custom-widget-' + Date.now(),
+            name: icon + ' ' + name,
+            url: link,
+            isStoryWidget: true,
+            visible: true
+        };
+        savedLayout.push(newBlock);
+        localStorage.setItem('home_layout', JSON.stringify(savedLayout));
+        toggleModal('addWidgetModal');
+        renderLayoutList();
+    }
+
     function renderLayoutList() {
         const container = document.getElementById('layoutItemsContainer');
-        let savedLayout = JSON.parse(localStorage.getItem('home_layout')) || defaultHomeBlocks;
+        let savedLayout = JSON.parse(localStorage.getItem('home_layout')) || [...defaultHomeBlocks];
         
         container.innerHTML = '';
         savedLayout.forEach((block, index) => {
@@ -605,6 +669,7 @@
                     <button class="layout-btn" onclick="moveBlock(${index}, -1)" title="Yukarı Taşı">⬆</button>
                     <button class="layout-btn" onclick="moveBlock(${index}, 1)" title="Aşağı Taşı">⬇</button>
                     <button class="layout-btn" onclick="toggleBlockVisibility(${index})" title="Göster/Gizle">${isVisible ? '👁️' : '🙈'}</button>
+                    <button class="layout-btn" onclick="removeBlock(${index})" title="Kaldır" style="color:#ef4444;">✕</button>
                 </div>
             `;
             container.appendChild(item);
@@ -612,7 +677,7 @@
     }
 
     function moveBlock(index, direction) {
-        let savedLayout = JSON.parse(localStorage.getItem('home_layout')) || defaultHomeBlocks;
+        let savedLayout = JSON.parse(localStorage.getItem('home_layout')) || [...defaultHomeBlocks];
         const newIndex = index + direction;
         
         if (newIndex >= 0 && newIndex < savedLayout.length) {
@@ -625,8 +690,15 @@
     }
 
     function toggleBlockVisibility(index) {
-        let savedLayout = JSON.parse(localStorage.getItem('home_layout')) || defaultHomeBlocks;
+        let savedLayout = JSON.parse(localStorage.getItem('home_layout')) || [...defaultHomeBlocks];
         savedLayout[index].visible = savedLayout[index].visible === false ? true : false;
+        localStorage.setItem('home_layout', JSON.stringify(savedLayout));
+        renderLayoutList();
+    }
+
+    function removeBlock(index) {
+        let savedLayout = JSON.parse(localStorage.getItem('home_layout')) || [...defaultHomeBlocks];
+        savedLayout.splice(index, 1);
         localStorage.setItem('home_layout', JSON.stringify(savedLayout));
         renderLayoutList();
     }
@@ -639,27 +711,25 @@
     }
 
     function resetHomeLayout() {
+        // Kesin temizlik ve varsayılana sıfırlama
         localStorage.removeItem('home_layout');
         renderLayoutList();
         const currentLang = localStorage.getItem('user_lang');
-        const alertMsg = currentLang === 'ar' ? 'تمت إعادة تعيين التخطيط إلى الوضع الافتراضي!' : currentLang === 'en' ? 'Layout reset to default!' : 'Düzen varsayılana sıfırlandı!';
+        const alertMsg = currentLang === 'ar' ? 'تمت إعادة تعيين التخطيط إلى الوضع الافتراضي بنجاح!' : currentLang === 'en' ? 'Layout reset to default successfully!' : 'Düzen başarıyla varsayılana sıfırlandı!';
         alert(alertMsg);
     }
 
     function applyTranslations(lang) {
         const t = translations[lang] || translations.tr;
         
-        // RTL ve Lang Ataması
         document.documentElement.lang = lang;
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-        // Metinleri Değiştir
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (t[key]) el.innerHTML = t[key];
         });
         
-        // Tema Buton Metni
         const themeText = document.getElementById('theme-text');
         const isLight = document.documentElement.classList.contains('light-mode');
         if (themeText) themeText.innerText = isLight ? t.lightMod : t.darkMod;
