@@ -70,17 +70,23 @@
         .setting-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
         .setting-item:last-child { border-bottom: none; }
         
-        .setting-info { display: flex; flex-direction: column; gap: 2px; text-align: start; }
+        .setting-info { display: flex; flex-direction: column; gap: 2px; text-align: start; flex: 1; padding-right: 12px; }
         .setting-label { font-size: 0.95rem; font-weight: 600; }
         .setting-desc { font-size: 0.8rem; color: var(--text-muted); }
         
-        .btn-ui { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .btn-ui { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; transition: 0.2s; }
         .btn-ui:hover { border-color: var(--accent-color); color: var(--accent-color); }
         
         select { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; width: 150px; cursor: pointer; }
         
         /* Özel Renk Seçici Kutusu */
         .color-picker-input { width: 38px; height: 38px; border: 1px solid var(--border-color); border-radius: 10px; background: none; cursor: pointer; padding: 2px; }
+
+        /* Ana Sayfa Düzenleme Liste Elemanları */
+        .layout-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg-color); padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 8px; }
+        .layout-actions { display: flex; gap: 6px; }
+        .layout-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-color); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+        .layout-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
 
         /* Modal Stili */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px; }
@@ -123,6 +129,15 @@
             </button>
         </div>
 
+        <!-- ANA SAYFAMI DÜZENLE (Tema Tercihinin Hemen Altına Eklendi) -->
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label" data-i18n="editHomePref">Ana Sayfamı Düzenle</div>
+                <div class="setting-desc" data-i18n="editHomeDesc">Ana ekran kartlarının sırasını ve görünürlüğünü ayarlayın</div>
+            </div>
+            <button class="btn-ui" onclick="openHomeLayoutModal()" data-i18n="editBtn">Düzenle ›</button>
+        </div>
+
         <!-- Özel Renk Paleti -->
         <div class="setting-item">
             <div class="setting-info">
@@ -152,7 +167,6 @@
             </div>
             <select id="citySelectBox" onchange="saveCity()">
                 <option value="Adana">Adana</option>
-                <!-- Kısalttım, kendi illerini tam koyabilirsin -->
                 <option value="Ankara">Ankara</option>
                 <option value="Erzincan">Erzincan</option>
                 <option value="İstanbul">İstanbul</option>
@@ -261,6 +275,28 @@
     </div>
 </div>
 
+<!-- ANA SAYFA DÜZENLEME MODALI -->
+<div class="modal-overlay" id="homeLayoutModal" onclick="toggleModal('homeLayoutModal')">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-title" data-i18n="editHomePref">Ana Sayfamı Düzenle</div>
+            <button class="modal-close" onclick="toggleModal('homeLayoutModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size: 0.85rem; margin-bottom: 5px;" data-i18n="homeLayoutDesc">Kartların sırasını yukarı/aşağı taşıyarak değiştirebilir veya görünürlüğünü kapatabilirsiniz.</p>
+            
+            <div id="layoutItemsContainer" style="display: flex; flex-direction: column; gap: 6px; margin: 10px 0;">
+                <!-- Dinamik olarak doldurulacak -->
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                <button class="btn-ui" style="justify-content: center; background: var(--accent-color); color: #fff; padding: 10px;" onclick="saveHomeLayout()" data-i18n="saveLayoutBtn">Düzenlemeyi Kaydet</button>
+                <button class="btn-ui" style="justify-content: center; background: transparent; padding: 8px;" onclick="resetHomeLayout()" data-i18n="resetLayoutBtn">Varsayılana Sıfırla</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Diğer Modallar -->
 <div class="modal-overlay" id="aboutModal" onclick="toggleModal('aboutModal')">
     <div class="modal-card" onclick="event.stopPropagation()">
@@ -317,6 +353,11 @@
             colorPalette: "Özel Renk Paleti",
             colorDesc: "Vurgu, yazı ve arka planı kişiselleştirin",
             editBtn: "Düzenle ›",
+            editHomePref: "Ana Sayfamı Düzenle",
+            editHomeDesc: "Ana ekran kartlarının sırasını ve görünürlüğünü ayarlayın",
+            homeLayoutDesc: "Kartların sırasını yukarı/aşağı taşıyarak değiştirebilir veya görünürlüğünü kapatabilirsiniz.",
+            saveLayoutBtn: "Düzenlemeyi Kaydet",
+            resetLayoutBtn: "Varsayılana Sıfırla",
             langPref: "Uygulama Dili",
             langDesc: "Türkçe, İngilizce veya Arapça seçimi",
             cityPref: "Varsayılan Konum",
@@ -362,6 +403,11 @@
             colorPalette: "Custom Color Palette",
             colorDesc: "Personalize accent, text, and background",
             editBtn: "Edit ›",
+            editHomePref: "Customize Home Page",
+            editHomeDesc: "Adjust home card order and visibility",
+            homeLayoutDesc: "Change card order by moving them up/down or toggle visibility.",
+            saveLayoutBtn: "Save Layout",
+            resetLayoutBtn: "Reset to Default",
             langPref: "App Language",
             langDesc: "Select Turkish, English, or Arabic",
             cityPref: "Default Location",
@@ -407,6 +453,11 @@
             colorPalette: "لوحة ألوان مخصصة",
             colorDesc: "تخصيص لون التمييز والنص والخلفية",
             editBtn: "تعديل ‹",
+            editHomePref: "تخصيص الصفحة الرئيسية",
+            editHomeDesc: "ضبط ترتيب بطاقات الشاشة الرئيسية ومدى ظهورها",
+            homeLayoutDesc: "يمكنك تغيير ترتيب البطاقات للألاسفل أو للأعلى أو إيقاف إظهارها.",
+            saveLayoutBtn: "حفظ التخطيط",
+            resetLayoutBtn: "إعادة للوضع الافتراضي",
             langPref: "لغة التطبيق",
             langDesc: "اختر التركية، الإنجليزية، أو العربية",
             cityPref: "الموقع الافتراضي",
@@ -443,6 +494,80 @@
             modalTermsText3: "2. يجب على المستخدم التحقق من مواقيت الصلاة."
         }
     };
+
+    // Ana Sayfa Kart Listesi Tanımları
+    const defaultHomeBlocks = [
+        { id: 'block-prayer', name: 'Günün Duası / Ayeti' },
+        { id: 'block-location', name: 'Konum ve Tarih Bandı' },
+        { id: 'block-quiz', name: 'İslam Dini ve Kültürü Bilgi Testi' },
+        { id: 'block-quotes', name: 'Günün Hikmetleri' },
+        { id: 'block-didyouknow', name: 'Biliyor musunuz?' },
+        { id: 'block-esma', name: 'Esmaül Hüsna' }
+    ];
+
+    function openHomeLayoutModal() {
+        renderLayoutList();
+        toggleModal('homeLayoutModal');
+    }
+
+    function renderLayoutList() {
+        const container = document.getElementById('layoutItemsContainer');
+        let savedLayout = JSON.parse(localStorage.getItem('home_layout')) || defaultHomeBlocks;
+        
+        container.innerHTML = '';
+        savedLayout.forEach((block, index) => {
+            const item = document.createElement('div');
+            item.className = 'layout-item';
+            item.setAttribute('data-id', block.id);
+            
+            const isVisible = block.visible !== false;
+            
+            item.innerHTML = `
+                <span style="font-weight: 600; font-size: 0.9rem;">${index + 1}. ${block.name}</span>
+                <div class="layout-actions">
+                    <button class="layout-btn" onclick="moveBlock(${index}, -1)" title="Yukarı Taşı">⬆</button>
+                    <button class="layout-btn" onclick="moveBlock(${index}, 1)" title="Aşağı Taşı">⬇</button>
+                    <button class="layout-btn" onclick="toggleBlockVisibility(${index})" title="Göster/Gizle">${isVisible ? '👁️' : '🙈'}</button>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+    }
+
+    function moveBlock(index, direction) {
+        let savedLayout = JSON.parse(localStorage.getItem('home_layout')) || defaultHomeBlocks;
+        const newIndex = index + direction;
+        
+        if (newIndex >= 0 && newIndex < savedLayout.length) {
+            const temp = savedLayout[index];
+            savedLayout[index] = savedLayout[newIndex];
+            savedLayout[newIndex] = temp;
+            localStorage.setItem('home_layout', JSON.stringify(savedLayout));
+            renderLayoutList();
+        }
+    }
+
+    function toggleBlockVisibility(index) {
+        let savedLayout = JSON.parse(localStorage.getItem('home_layout')) || defaultHomeBlocks;
+        savedLayout[index].visible = savedLayout[index].visible === false ? true : false;
+        localStorage.setItem('home_layout', JSON.stringify(savedLayout));
+        renderLayoutList();
+    }
+
+    function saveHomeLayout() {
+        const currentLang = localStorage.getItem('user_lang');
+        const alertMsg = currentLang === 'ar' ? 'تم حفظ تخطيط الصفحة الرئيسية بنجاح!' : currentLang === 'en' ? 'Home page layout saved successfully!' : 'Ana sayfa düzeni başarıyla kaydedildi!';
+        alert(alertMsg);
+        toggleModal('homeLayoutModal');
+    }
+
+    function resetHomeLayout() {
+        localStorage.removeItem('home_layout');
+        renderLayoutList();
+        const currentLang = localStorage.getItem('user_lang');
+        const alertMsg = currentLang === 'ar' ? 'تمت إعادة تعيين التخطيط إلى الوضع الافتراضي!' : currentLang === 'en' ? 'Layout reset to default!' : 'Düzen varsayılana sıfırlandı!';
+        alert(alertMsg);
+    }
 
     function applyTranslations(lang) {
         const t = translations[lang] || translations.tr;
