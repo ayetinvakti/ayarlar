@@ -671,12 +671,57 @@
         });
     }
 
+        // Menü Seçimlerini Yükleme ve Çizme
+    function renderMenuCheckboxes() {
+        const container = document.getElementById('menuCheckboxesContainer');
+        if (!container) return;
+        
+        let savedItems = localStorage.getItem('custom_menu_items');
+        // Eğer daha önce kayıt yoksa varsayılan olarak ilk 3 tanesini seçili getirebiliriz veya boş bırakabiliriz
+        let activeItems = savedItems ? JSON.parse(savedItems) : allMenuItems.slice(0, 3).map(i => i.id);
+
+        container.innerHTML = '';
+        allMenuItems.forEach(item => {
+            const isChecked = activeItems.includes(item.id);
+            container.innerHTML += `
+                <label class="menu-checkbox-item">
+                    <input type="checkbox" value="${item.id}" ${isChecked ? 'checked' : ''} onchange="validateMenuLimit(this)">
+                    <span>${item.name}</span>
+                </label>
+            `;
+        });
+    }
+
+    // Anlık 3 seçim sınırı kontrolü (Kullanıcı 4.yü seçtiğinde uyarır ve seçtirmez)
+    function validateMenuLimit(checkbox) {
+        const checkboxes = document.querySelectorAll('#menuCheckboxesContainer input[type="checkbox"]:checked');
+        if (checkboxes.length > 3) {
+            checkbox.checked = false; // Seçimi iptal et
+            
+            const currentLang = localStorage.getItem('user_lang') || 'tr';
+            let limitMsg = 'Hızlı menüye en fazla 3 öğe seçebilirsiniz!';
+            if (currentLang === 'en') limitMsg = 'You can select a maximum of 3 items for the quick menu!';
+            if (currentLang === 'ar') limitMsg = 'يمكنك اختيار 3 عناصر كحد أقصى للقائمة السريعة!';
+            
+            alert(limitMsg);
+        }
+    }
+
     function saveCustomMenuItems() {
         const checkboxes = document.querySelectorAll('#menuCheckboxesContainer input[type="checkbox"]');
         let selectedIds = [];
         checkboxes.forEach(cb => {
             if (cb.checked) selectedIds.push(cb.value);
         });
+
+        if (selectedIds.length === 0) {
+            const currentLang = localStorage.getItem('user_lang') || 'tr';
+            let emptyMsg = 'Lütfen en az 1 öğe seçin!';
+            if (currentLang === 'en') emptyMsg = 'Please select at least 1 item!';
+            if (currentLang === 'ar') emptyMsg = 'يرجى اختيار عنصر واحد على الأقل!';
+            alert(emptyMsg);
+            return;
+        }
 
         localStorage.setItem('custom_menu_items', JSON.stringify(selectedIds));
         
