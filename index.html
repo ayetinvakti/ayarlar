@@ -90,6 +90,11 @@
         input:checked + .slider { background-color: var(--accent-color); }
         input:checked + .slider:before { transform: translateX(22px); }
 
+        /* Menü Seçim Kutucukları Grid Yapısı */
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 8px; max-height: 250px; overflow-y: auto; margin-top: 8px; padding-right: 4px; text-align: start; }
+        .menu-checkbox-item { display: flex; align-items: center; gap: 10px; background: var(--bg-color); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); font-size: 0.9rem; cursor: pointer; }
+        .menu-checkbox-item input { accent-color: var(--accent-color); width: 18px; height: 18px; cursor: pointer; }
+
         /* Modal Stili */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -157,12 +162,21 @@
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-label" data-i18n="assistiveTouchPref">Hızlı Erişim Menü İkonu</div>
-                <div class="setting-desc" data-i18n="assistiveTouchDesc">Sağ alttaki 4'lü menü butonunu göster / gizle</div>
+                <div class="setting-desc" data-i18n="assistiveTouchDesc">Sağ alttaki menü butonunu göster / gizle</div>
             </div>
             <label class="switch">
                 <input type="checkbox" id="assistiveToggle" onchange="saveAssistiveTouchPreference()">
                 <span class="slider"></span>
             </label>
+        </div>
+
+        <!-- YENİ: Hızlı Menü İçerik Özelleştirme -->
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-label" data-i18n="menuItemsPref">Hızlı Menü İçeriği</div>
+                <div class="setting-desc" data-i18n="menuItemsDesc">Menüde hangi kısayolların görüneceğini seçin</div>
+            </div>
+            <button class="btn-ui" onclick="toggleModal('menuItemsModal')" data-i18n="customizeBtn">Özelleştir ›</button>
         </div>
 
         <!-- 81 İL EKLENEN VARSAYILAN KONUM -->
@@ -283,7 +297,7 @@
                 <div class="setting-label" data-i18n="appVersion">Uygulama Sürümü</div>
                 <div class="setting-desc">Ayetin Vakti Dijital İslami Yardımcı</div>
             </div>
-            <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-color);">v0.2.4</div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-color);">v0.2.5</div>
         </div>
         <div class="setting-item">
             <div class="setting-info">
@@ -322,6 +336,27 @@
                 <div class="setting-desc" data-i18n="ytDesc">İçeriklerimizi takip edin</div>
             </div>
             <a href="https://www.youtube.com/@AyetinVakti" target="_blank" class="btn-ui" data-i18n="ytBtn">YouTube ›</a>
+        </div>
+    </div>
+</div>
+
+<!-- HIZLI MENÜ İÇERİK SEÇİM MODALI -->
+<div class="modal-overlay" id="menuItemsModal" onclick="toggleModal('menuItemsModal')">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-title" data-i18n="menuModalTitle">Hızlı Menü İçeriğini Düzenle</div>
+            <button class="modal-close" onclick="toggleModal('menuItemsModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size: 0.85rem;" data-i18n="menuModalDesc">Hızlı erişim menüsünde görünmesini istediğiniz modülleri seçin:</p>
+            
+            <div class="menu-grid" id="menuCheckboxesContainer">
+                <!-- Javascript ile dinamik doldurulacak -->
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                <button class="btn-ui" style="justify-content: center; background: var(--accent-color); color: #fff; padding: 10px;" onclick="saveCustomMenuItems()" data-i18n="menuSaveBtn">Tercihleri Kaydet</button>
+            </div>
         </div>
     </div>
 </div>
@@ -402,6 +437,21 @@
 <div class="footer">© Ayetin Vakti • <span data-i18n="footerText">Huzur ve İbadet Rehberliğiniz</span></div>
 
 <script>
+    // Tüm olası menü öğeleri listesi
+    const allMenuItems = [
+        { id: 'diniGunler', name: '📅 Dini Günler', default: true },
+        { id: 'esmaulHusna', name: '🌙 Esmaül Hüsna', default: true },
+        { id: 'gununAyeti', name: '✨ Günün Ayeti', default: true },
+        { id: 'kazaNamaz', name: '⏳ Kaza Namazı', default: true },
+        { id: 'kiblePusulasi', name: '🧭 Kıble Pusulası', default: true },
+        { id: 'kuranOku', name: '📖 Kur\'an-ı Kerim Oku', default: true },
+        { id: 'namazOgretmeni', name: '📖 Namaz Öğretmeni', default: true },
+        { id: 'namazVakitleri', name: '🕌 Namaz Vakitleri', default: true },
+        { id: 'besBesNamaz', name: '🤲 5-5 Namaz', default: true },
+        { id: 'zakatHesap', name: '💰 Zekat Hesaplama', default: true },
+        { id: 'zikirmatiks', name: '📿 Zikirmatik', default: true }
+    ];
+
     const translations = {
         tr: {
             settingsTitle: "Uygulama Ayarları",
@@ -416,7 +466,13 @@
             langPref: "Uygulama Dili",
             langDesc: "Türkçe, İngilizce veya Arapça seçimi",
             assistiveTouchPref: "Hızlı Erişim Menü İkonu",
-            assistiveTouchDesc: "Sağ alttaki 4'lü menü butonunu göster / gizle",
+            assistiveTouchDesc: "Sağ alttaki menü butonunu göster / gizle",
+            menuItemsPref: "Hızlı Menü İçeriği",
+            menuItemsDesc: "Menüde hangi kısayolların görüneceğini seçin",
+            customizeBtn: "Özelleştir ›",
+            menuModalTitle: "Hızlı Menü İçeriğini Düzenle",
+            menuModalDesc: "Hızlı erişim menüsünde görünmesini istediğiniz modülleri seçin:",
+            menuSaveBtn: "Tercihleri Kaydet",
             cityPref: "Varsayılan Konum",
             cityDesc: "Namaz vakitleri için il seçin",
             secNotifications: "Bildirim ve Hatırlatmalar",
@@ -463,7 +519,13 @@
             langPref: "App Language",
             langDesc: "Select Turkish, English, or Arabic",
             assistiveTouchPref: "Quick Menu Icon",
-            assistiveTouchDesc: "Show / hide the floating quick menu button",
+            assistiveTouchDesc: "Show / hide the floating menu button",
+            menuItemsPref: "Quick Menu Items",
+            menuItemsDesc: "Choose which shortcuts appear in the menu",
+            customizeBtn: "Customize ›",
+            menuModalTitle: "Edit Quick Menu Items",
+            menuModalDesc: "Select modules you want to display in the quick access menu:",
+            menuSaveBtn: "Save Preferences",
             cityPref: "Default Location",
             cityDesc: "Select city for prayer times",
             secNotifications: "Notifications & Reminders",
@@ -511,6 +573,12 @@
             langDesc: "اختر التركية، الإنجليزية، أو العربية",
             assistiveTouchPref: "أيقونة القائمة السريعة",
             assistiveTouchDesc: "إظهار / إخفاء زر القائمة العائم",
+            menuItemsPref: "عناصر القائمة السريعة",
+            menuItemsDesc: "اختر الاختصارات التي تظهر في القائمة",
+            customizeBtn: "تخصيص ‹",
+            menuModalTitle: "تعديل عناصر القائمة السريعة",
+            menuModalDesc: "اختر الوحدات التي تريد عرضها في قائمة الوصول السريع:",
+            menuSaveBtn: "حفظ التفضيلات",
             cityPref: "الموقع الافتراضي",
             cityDesc: "اختر المدينة لمواقيت الصلاة",
             secNotifications: "الإشعارات والتذكيرات",
@@ -583,6 +651,41 @@
         localStorage.setItem('assistive_touch_enabled', isChecked ? 'true' : 'false');
     }
 
+    // Menü Seçimlerini Yükleme ve Çizme
+    function renderMenuCheckboxes() {
+        const container = document.getElementById('menuCheckboxesContainer');
+        if (!container) return;
+        
+        let savedItems = localStorage.getItem('custom_menu_items');
+        let activeItems = savedItems ? JSON.parse(savedItems) : allMenuItems.map(i => i.id);
+
+        container.innerHTML = '';
+        allMenuItems.forEach(item => {
+            const isChecked = activeItems.includes(item.id);
+            container.innerHTML += `
+                <label class="menu-checkbox-item">
+                    <input type="checkbox" value="${item.id}" ${isChecked ? 'checked' : ''}>
+                    <span>${item.name}</span>
+                </label>
+            `;
+        });
+    }
+
+    function saveCustomMenuItems() {
+        const checkboxes = document.querySelectorAll('#menuCheckboxesContainer input[type="checkbox"]');
+        let selectedIds = [];
+        checkboxes.forEach(cb => {
+            if (cb.checked) selectedIds.push(cb.value);
+        });
+
+        localStorage.setItem('custom_menu_items', JSON.stringify(selectedIds));
+        
+        const currentLang = localStorage.getItem('user_lang') || 'tr';
+        const msg = currentLang === 'ar' ? 'تم حفظ تفضيلات القائمة بنجاح!' : currentLang === 'en' ? 'Menu preferences saved successfully!' : 'Menü tercihleri başarıyla kaydedildi!';
+        alert(msg);
+        toggleModal('menuItemsModal');
+    }
+
     function previewColor(type, val) {
         if(type === 'accent') document.documentElement.style.setProperty('--accent-color', val);
         if(type === 'text') document.documentElement.style.setProperty('--text-color', val);
@@ -617,6 +720,9 @@
 
     function toggleModal(modalId) {
         document.getElementById(modalId).classList.toggle('active');
+        if(modalId === 'menuItemsModal') {
+            renderMenuCheckboxes();
+        }
     }
 
     function toggleTheme() {
@@ -657,6 +763,7 @@
         document.getElementById('bgPicker').value = currentBg.length === 7 ? currentBg : '#0b1120';
         
         applyTranslations(savedLang);
+        renderMenuCheckboxes();
     });
 </script>
 </body>
