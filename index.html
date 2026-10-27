@@ -33,6 +33,10 @@
                 document.documentElement.style.setProperty('--bg-color', customBg);
                 document.documentElement.style.setProperty('--card-bg', customBg);
             }
+
+            // Safari üst/alt çubuk rengi sayfa zeminine uysun
+            const metaTC = document.querySelector('meta[name="theme-color"]');
+            if (metaTC) metaTC.setAttribute('content', customBg || (document.documentElement.classList.contains('light-mode') ? '#f8fafc' : '#0b1120'));
         })();
     </script>
 
@@ -76,8 +80,8 @@
         .setting-label { font-size: 0.95rem; font-weight: 600; }
         .setting-desc { font-size: 0.8rem; color: var(--text-muted); }
 
-        .btn-ui { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; transition: 0.2s; }
-        .btn-ui:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .btn-ui { background: color-mix(in srgb, var(--accent-color) 12%, transparent); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; transition: 0.2s; }
+        @media (hover: hover) { .btn-ui:hover { border-color: var(--accent-color); color: var(--accent-color); } }
 
         select { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; width: 150px; cursor: pointer; }
 
@@ -669,6 +673,14 @@
 
         // Menü kutucuklarının isimleri dile göre güncellensin
         renderMenuCheckboxes();
+        updateThemeColor();
+    }
+
+    // Tarayıcı çubuğu rengini (theme-color) o anki arka plan rengine eşitler
+    function updateThemeColor() {
+        const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+        const m = document.querySelector('meta[name="theme-color"]');
+        if (m && bg) m.setAttribute('content', bg);
     }
 
     function changeLanguage() {
@@ -770,6 +782,7 @@
             const v = localStorage.getItem(key);
             props.forEach(p => v ? root.setProperty(p, v) : root.removeProperty(p));
         });
+        updateThemeColor();
     }
 
     function toHex(v, fallback) {
@@ -796,6 +809,7 @@
             document.documentElement.style.setProperty('--bg-color', val);
             document.documentElement.style.setProperty('--card-bg', val);
         }
+        updateThemeColor();
     }
 
     function applyColorsToAll() {
