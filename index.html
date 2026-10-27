@@ -34,6 +34,26 @@
                 document.documentElement.style.setProperty('--card-bg', customBg);
             }
 
+            // Özel arka plan var, yazı rengi seçilmemişse okunabilir yazı/ikincil yazı/kenarlık rengini zeminin açıklığına göre belirler
+            window.applyAutoContrast = function (bg, customTextSet) {
+                const st = document.documentElement.style;
+                const m = /^#([0-9a-f]{6})$/i.exec((bg || '').trim());
+                if (!m || customTextSet) {
+                    st.removeProperty('--text-muted');
+                    st.removeProperty('--border-color');
+                    if (!customTextSet) st.removeProperty('--text-color');
+                    return;
+                }
+                const n = parseInt(m[1], 16);
+                const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+                const L = 0.2126 * lin(n >> 16) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+                const bgIsLight = L > 0.18;
+                st.setProperty('--text-color', bgIsLight ? '#0f172a' : '#f8fafc');
+                st.setProperty('--text-muted', bgIsLight ? '#475569' : '#cbd5e1');
+                st.setProperty('--border-color', bgIsLight ? 'rgba(15,23,42,0.18)' : 'rgba(248,250,252,0.22)');
+            };
+            window.applyAutoContrast(customBg, customText);
+
             // Safari üst/alt çubuk rengi sayfa zeminine uysun
             const metaTC = document.querySelector('meta[name="theme-color"]');
             if (metaTC) metaTC.setAttribute('content', customBg || (document.documentElement.classList.contains('light-mode') ? '#f8fafc' : '#0b1120'));
@@ -782,6 +802,7 @@
             const v = localStorage.getItem(key);
             props.forEach(p => v ? root.setProperty(p, v) : root.removeProperty(p));
         });
+        window.applyAutoContrast(localStorage.getItem('custom_bg'), localStorage.getItem('custom_text'));
         updateThemeColor();
     }
 
@@ -809,6 +830,9 @@
             document.documentElement.style.setProperty('--bg-color', val);
             document.documentElement.style.setProperty('--card-bg', val);
         }
+        // Yazı rengi seçilmediyse, o anki (önizlenen veya kayıtlı) zemine göre okunabilir yazı rengi
+        const bgNow = touched.bg ? document.getElementById('bgPicker').value : localStorage.getItem('custom_bg');
+        window.applyAutoContrast(bgNow, touched.text || !!localStorage.getItem('custom_text'));
         updateThemeColor();
     }
 
