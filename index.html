@@ -15,9 +15,10 @@
             document.documentElement.lang = savedLang;
             if (savedLang === 'ar') document.documentElement.dir = 'rtl';
 
-            // Tema Yükleme
+            // Tema Yükleme (kayıt yoksa sistem temasına uyar; tema sınıfı her zaman <html> üzerinde)
             const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'light') {
+            const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'light' || (!savedTheme && !systemPrefersDark)) {
                 document.documentElement.classList.add('light-mode');
             }
 
@@ -37,6 +38,7 @@
 
     <style>
         :root {
+            color-scheme: dark;
             --bg-color: #0b1120;
             --card-bg: #1e293b;
             --accent-color: #10b981;
@@ -109,7 +111,7 @@
         .footer span { color: var(--accent-color); font-weight: 600; }
 
         /* Light Mode Destekleri */
-        body.light-mode { --bg-color: #f8fafc; --card-bg: #ffffff; --text-color: #0f172a; --text-muted: #64748b; --border-color: #e2e8f0; }
+        html.light-mode { color-scheme: light; --bg-color: #f8fafc; --card-bg: #ffffff; --text-color: #0f172a; --text-muted: #64748b; --border-color: #e2e8f0; }
     </style>
 </head>
 <body>
@@ -439,6 +441,8 @@
 <script>
     // Tüm olası menü öğeleri (id'ler diğer sayfalardaki hızlı menü ile eşleştiği için DEĞİŞTİRİLMEMELİ)
     const MENU_LIMIT = 3;
+    // Hiç ayar yapılmamışken ana sayfadaki hızlı menüde görünen öğeler
+    const DEFAULT_MENU = ['diniGunler', 'kiblePusulasi', 'zikirmatiks'];
     const allMenuItems = [
         { id: 'diniGunler', icon: '📅', tr: 'Dini Günler', en: 'Religious Days', ar: 'الأيام الدينية' },
         { id: 'esmaulHusna', icon: '🌙', tr: 'Esmaül Hüsna', en: 'Names of Allah', ar: 'الأسماء الحسنى' },
@@ -485,6 +489,7 @@
             menuEmptyMsg: "Lütfen en az 1 öğe seçin!",
             menuSavedMsg: "Menü tercihleri başarıyla kaydedildi!",
             colorsSavedMsg: "Renkler başarıyla uygulandı ve kaydedildi!",
+            colorsNoChangeMsg: "Renklerde değişiklik yapılmadı.",
             cityPref: "Varsayılan Konum",
             cityDesc: "Namaz vakitleri için il seçin",
             secNotifications: "Bildirim ve Hatırlatmalar",
@@ -542,6 +547,7 @@
             menuEmptyMsg: "Please select at least 1 item!",
             menuSavedMsg: "Menu preferences saved successfully!",
             colorsSavedMsg: "Colors applied and saved successfully!",
+            colorsNoChangeMsg: "No color changes were made.",
             cityPref: "Default Location",
             cityDesc: "Select city for prayer times",
             secNotifications: "Notifications & Reminders",
@@ -599,6 +605,7 @@
             menuEmptyMsg: "يرجى اختيار عنصر واحد على الأقل!",
             menuSavedMsg: "تم حفظ تفضيلات القائمة بنجاح!",
             colorsSavedMsg: "تم تطبيق الألوان وحفظها بنجاح!",
+            colorsNoChangeMsg: "لم يتم إجراء أي تغيير على الألوان.",
             cityPref: "الموقع الافتراضي",
             cityDesc: "اختر المدينة لمواقيت الصلاة",
             secNotifications: "الإشعارات والتذكيرات",
@@ -704,7 +711,7 @@
 
         const lang = currentLangCode();
         // Daha önce 3'ten fazla kaydedilmişse (eski sürüm) ilk 3'üyle sınırla
-        const activeItems = (getSavedMenuItems() || allMenuItems.slice(0, MENU_LIMIT).map(i => i.id)).slice(0, MENU_LIMIT);
+        const activeItems = (getSavedMenuItems() || DEFAULT_MENU).slice(0, MENU_LIMIT);
 
         container.innerHTML = allMenuItems.map(item => `
             <label class="menu-checkbox-item">
@@ -744,7 +751,45 @@
         toggleModal('menuItemsModal');
     }
 
+    // ---- Özel renk paleti ----
+    // Yalnızca kullanıcının dokunduğu renkler kaydedilir; dokunulmayanlar temanın kendi değerinde kalır
+    const touched = { accent: false, text: false, bg: false };
+
+    function resetTouched() {
+        touched.accent = touched.text = touched.bg = false;
+    }
+
+    // Kayıtlı özel renkleri <html> üzerine uygular; kayıt yoksa satır içi değeri kaldırır (tema varsayılanı geçerli olur)
+    function applySavedColors() {
+        const root = document.documentElement.style;
+        [
+            ['custom_accent', ['--accent-color']],
+            ['custom_text', ['--text-color']],
+            ['custom_bg', ['--bg-color', '--card-bg']]
+        ].forEach(([key, props]) => {
+            const v = localStorage.getItem(key);
+            props.forEach(p => v ? root.setProperty(p, v) : root.removeProperty(p));
+        });
+    }
+
+    function toHex(v, fallback) {
+        v = (v || '').trim();
+        if (/^#[0-9a-f]{6}$/i.test(v)) return v;
+        if (/^#[0-9a-f]{3}$/i.test(v)) return '#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3];
+        return fallback;
+    }
+
+    // Renk seçicileri o anki (temaya göre) gerçek değerleri göstersin
+    function refreshPickers() {
+        const cs = getComputedStyle(document.documentElement);
+        const isLight = document.documentElement.classList.contains('light-mode');
+        document.getElementById('accentPicker').value = toHex(cs.getPropertyValue('--accent-color'), isLight ? '#059669' : '#10b981');
+        document.getElementById('textPicker').value = toHex(cs.getPropertyValue('--text-color'), isLight ? '#0f172a' : '#f8fafc');
+        document.getElementById('bgPicker').value = toHex(cs.getPropertyValue('--bg-color'), isLight ? '#f8fafc' : '#0b1120');
+    }
+
     function previewColor(type, val) {
+        touched[type] = true;
         if(type === 'accent') document.documentElement.style.setProperty('--accent-color', val);
         if(type === 'text') document.documentElement.style.setProperty('--text-color', val);
         if(type === 'bg') {
@@ -754,13 +799,14 @@
     }
 
     function applyColorsToAll() {
-        const accent = document.getElementById('accentPicker').value;
-        const text = document.getElementById('textPicker').value;
-        const bg = document.getElementById('bgPicker').value;
-
-        localStorage.setItem('custom_accent', accent);
-        localStorage.setItem('custom_text', text);
-        localStorage.setItem('custom_bg', bg);
+        if (!touched.accent && !touched.text && !touched.bg) {
+            alert(tr('colorsNoChangeMsg'));
+            toggleModal('colorSettingsModal');
+            return;
+        }
+        if (touched.accent) localStorage.setItem('custom_accent', document.getElementById('accentPicker').value);
+        if (touched.text) localStorage.setItem('custom_text', document.getElementById('textPicker').value);
+        if (touched.bg) localStorage.setItem('custom_bg', document.getElementById('bgPicker').value);
 
         alert(tr('colorsSavedMsg'));
         toggleModal('colorSettingsModal');
@@ -770,38 +816,44 @@
         localStorage.removeItem('custom_accent');
         localStorage.removeItem('custom_text');
         localStorage.removeItem('custom_bg');
-        location.reload();
+        resetTouched();
+        applySavedColors();
+        refreshPickers();
     }
 
     function toggleModal(modalId) {
-        document.getElementById(modalId).classList.toggle('active');
-        if(modalId === 'menuItemsModal') {
+        const el = document.getElementById(modalId);
+        const opening = !el.classList.contains('active');
+        el.classList.toggle('active');
+
+        if (modalId === 'menuItemsModal' && opening) {
             renderMenuCheckboxes();
+        }
+        if (modalId === 'colorSettingsModal') {
+            if (opening) {
+                resetTouched();
+                refreshPickers();
+            } else {
+                // Kaydedilmeden kapatılan önizleme geri alınır (kaydedildiyse kayıtlı değerler zaten aynı)
+                applySavedColors();
+                resetTouched();
+            }
         }
     }
 
     // ESC ile açık modal kapanır
     document.addEventListener('keydown', e => {
         if (e.key !== 'Escape') return;
-        document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+        document.querySelectorAll('.modal-overlay.active').forEach(m => toggleModal(m.id));
     });
 
     function toggleTheme() {
         const isLight = document.documentElement.classList.toggle('light-mode');
-        document.body.classList.toggle('light-mode', isLight);
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
-        const lang = localStorage.getItem('user_lang') || 'tr';
-        applyTranslations(lang);
-        if(!localStorage.getItem('custom_bg')) location.reload();
+        applyTranslations(currentLangCode());
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'light') {
-            document.documentElement.classList.add('light-mode');
-            document.body.classList.add('light-mode');
-        }
-
         const savedLang = localStorage.getItem('user_lang') || 'tr';
         document.getElementById('langSelect').value = savedLang;
 
@@ -814,14 +866,7 @@
         const savedAssistive = localStorage.getItem('assistive_touch_enabled');
         document.getElementById('assistiveToggle').checked = savedAssistive !== 'false';
 
-        const style = getComputedStyle(document.documentElement);
-        const currentAccent = localStorage.getItem('custom_accent') || style.getPropertyValue('--accent-color').trim();
-        const currentText = localStorage.getItem('custom_text') || style.getPropertyValue('--text-color').trim();
-        const currentBg = localStorage.getItem('custom_bg') || style.getPropertyValue('--bg-color').trim();
-
-        document.getElementById('accentPicker').value = currentAccent.length === 7 ? currentAccent : '#10b981';
-        document.getElementById('textPicker').value = currentText.length === 7 ? currentText : '#f8fafc';
-        document.getElementById('bgPicker').value = currentBg.length === 7 ? currentBg : '#0b1120';
+        refreshPickers();
 
         applyTranslations(savedLang);
     });
