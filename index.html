@@ -22,6 +22,9 @@
                 document.documentElement.classList.add('light-mode');
             }
 
+            // Yüzey görünümü: kayıt yoksa mat (mevcut görünüm); tema gibi yalnızca <html> üzerinde sınıf
+            if (localStorage.getItem('custom_finish') === 'glossy') document.documentElement.classList.add('finish-glossy');
+
             // Renk Yükleme
             const customAccent = localStorage.getItem('custom_accent');
             const customText = localStorage.getItem('custom_text');
@@ -133,6 +136,29 @@
 
         .footer { margin: 20px 0; text-align: center; font-size: 0.85rem; color: var(--text-muted); }
         .footer span { color: var(--accent-color); font-weight: 600; }
+
+        /* Yüzey görünümü: Mat (varsayılan, düz) / Parlak. Renkleri değiştirmez, yalnızca yüzey işlemesini belirler */
+        .btn-ui.btn-primary { justify-content: center; background: var(--accent-color); color: #fff; padding: 10px; }
+        @media (hover: hover) { .btn-ui.btn-primary:hover { color: #fff; filter: brightness(1.08); } }
+        .finish-group { display: flex; gap: 6px; width: 100%; }
+        .finish-btn { flex: 1; background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 6px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
+        .finish-btn.active { border-color: var(--accent-color); color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color) inset; }
+
+        html.finish-glossy .navbar, html.finish-glossy .settings-card, html.finish-glossy .modal-card {
+            background-image: linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.04) 40%, rgba(255,255,255,0) 62%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 6px 18px rgba(0,0,0,0.25);
+        }
+        html.finish-glossy .btn-ui, html.finish-glossy .finish-btn {
+            background-image: linear-gradient(180deg, rgba(255,255,255,0.3), rgba(255,255,255,0) 62%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 6px rgba(0,0,0,0.22);
+        }
+        html.finish-glossy .slider:before { box-shadow: 0 1px 3px rgba(0,0,0,0.35); }
+        /* Açık zeminde beyaz parlama görünmez; üstte parlama + altta hafif gölgelenme verilir */
+        html.light-mode.finish-glossy .navbar, html.light-mode.finish-glossy .settings-card, html.light-mode.finish-glossy .modal-card {
+            background-image: linear-gradient(180deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 55%), linear-gradient(0deg, rgba(15,23,42,0.06) 0%, rgba(15,23,42,0) 40%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 6px 18px rgba(15,23,42,0.12);
+        }
+        html.light-mode.finish-glossy .btn-ui, html.light-mode.finish-glossy .finish-btn { box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 6px rgba(15,23,42,0.15); }
 
         /* Light Mode Destekleri */
         html.light-mode { color-scheme: light; --bg-color: #f8fafc; --card-bg: #ffffff; --text-color: #0f172a; --text-muted: #64748b; --border-color: #e2e8f0; }
@@ -323,12 +349,12 @@
                 <div class="setting-label" data-i18n="appVersion">Uygulama Sürümü</div>
                 <div class="setting-desc">Ayetin Vakti Dijital İslami Yardımcı</div>
             </div>
-            <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-color);">v0.2.5</div>
+            <div style="text-align: end;"><div id="appVersionNum" style="font-size: 0.85rem; font-weight: 700; color: var(--accent-color);">v0.3</div><div class="setting-desc" id="appVersionStamp"></div></div>
         </div>
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-label" data-i18n="aboutUs">Hakkımızda</div>
-                <div class="setting-desc" data-i18n="aboutUsDesc">Proje danışmanlığı ve vizyonumuz</div>
+                <div class="setting-desc" data-i18n="aboutUsDesc">Projemiz ve vizyonumuz</div>
             </div>
             <button class="btn-ui" onclick="toggleModal('aboutModal')" data-i18n="readBtn">Oku ›</button>
         </div>
@@ -381,7 +407,7 @@
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
-                <button class="btn-ui" style="justify-content: center; background: var(--accent-color); color: #fff; padding: 10px;" onclick="saveCustomMenuItems()" data-i18n="menuSaveBtn">Tercihleri Kaydet</button>
+                <button class="btn-ui btn-primary" onclick="saveCustomMenuItems()" data-i18n="menuSaveBtn">Tercihleri Kaydet</button>
             </div>
         </div>
     </div>
@@ -410,8 +436,16 @@
                 <input type="color" id="bgPicker" class="color-picker-input" onchange="previewColor('bg', this.value)">
             </div>
 
+            <div class="setting-item" style="flex-direction: column; align-items: stretch; gap: 8px; padding: 8px 0; border-bottom: none;">
+                <div class="setting-label" data-i18n="colorFinish">4. Yüzey Görünümü</div>
+                <div class="finish-group">
+                    <button type="button" class="finish-btn" data-finish="matte" onclick="previewFinish('matte')" data-i18n="finishMatte">Mat</button>
+                    <button type="button" class="finish-btn" data-finish="glossy" onclick="previewFinish('glossy')" data-i18n="finishGlossy">Parlak</button>
+                </div>
+            </div>
+
             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
-                <button class="btn-ui" style="justify-content: center; background: var(--accent-color); color: #fff; padding: 10px;" onclick="applyColorsToAll()" data-i18n="colorSaveBtn">Tüm Sayfalara Uygula</button>
+                <button class="btn-ui btn-primary" onclick="applyColorsToAll()" data-i18n="colorSaveBtn">Tüm Sayfalara Uygula</button>
                 <button class="btn-ui" style="justify-content: center; background: transparent; padding: 8px;" onclick="resetColors()" data-i18n="colorResetBtn">Varsayılana Dön</button>
             </div>
         </div>
@@ -440,8 +474,9 @@
             <button class="modal-close" onclick="toggleModal('privacyModal')">✕</button>
         </div>
         <div class="modal-body">
-            <p data-i18n="modalPrivacyText1"><strong>Ayetin Vakti</strong> olarak kişisel gizliliğinize büyük önem veriyoruz. Uygulamamızı kullanırken tercih ettiğiniz konum, tema ve dil gibi ayarlarınız yalnızca sizin cihazınızda (localStorage üzerinde) saklanır.</p>
-            <p data-i18n="modalPrivacyText2">Sunucularımızda hiçbir şahsi veri toplanmaz ve üçüncü şahıslarla paylaşılmaz.</p>
+            <p data-i18n="modalPrivacyText1"><strong>Ayetin Vakti</strong> için hesap açmanız ya da ad, e-posta gibi kişisel bilgi vermeniz gerekmez. Dil, tema, renk, seçtiğiniz il, hatırlatma süresi ve hızlı menü tercihleri gibi ayarlarınız yalnızca kendi cihazınızdaki tarayıcı depolamasında (localStorage) saklanır.</p>
+            <p data-i18n="modalPrivacyText2">Namaz vakitleri, kıble pusulası ve yakındaki camiler gibi bazı özellikler çalışabilmek için seçtiğiniz ili ya da (izin verirseniz) cihazınızın konumunu ilgili veri hizmeti sağlayıcılarına iletebilir. Konum izni tarayıcınız üzerinden verilir ve dilediğiniz zaman geri alınabilir.</p>
+            <p data-i18n="modalPrivacyText3">Site GitHub Pages üzerinde barındırılır; barındırma sağlayıcısı olarak GitHub standart sunucu kayıtları tutabilir. Instagram ve YouTube bağlantıları, kendi gizlilik politikaları geçerli olan harici sitelere yönlendirir. Tarayıcı verilerinizi temizleyerek kayıtlı tercihlerinizi dilediğiniz zaman silebilirsiniz.</p>
         </div>
     </div>
 </div>
@@ -454,8 +489,10 @@
         </div>
         <div class="modal-body">
             <p data-i18n="modalTermsText1">Bu uygulamayı kullanarak aşağıdaki koşulları kabul etmiş sayılırsınız:</p>
-            <p data-i18n="modalTermsText2">1. Uygulama içerisindeki bilgiler bilgilendirme amaçlıdır.</p>
-            <p data-i18n="modalTermsText3">2. Namaz vakitlerini yerel takvimlerle teyit etmek kullanıcının sorumluluğundadır.</p>
+            <p data-i18n="modalTermsText2">1. Uygulamadaki bilgiler genel bilgilendirme amacıyla sunulur; fetva veya bağlayıcı dinî hüküm yerine geçmez. Dinî konularda ayrıntı için yetkili kurumlara (ör. Diyanet İşleri Başkanlığı) ya da ehil âlimlere başvurunuz.</p>
+            <p data-i18n="modalTermsText3">2. Namaz vakitleri, kıble yönü, imsakiye ve zekât hesaplamaları yaklaşık sonuçlar verebilir (konum, cihaz sensörü ve hesaplama yöntemi farklarından etkilenir). Bu bilgileri resmî takvimler ve yerel duyurularla teyit etmek kullanıcının sorumluluğundadır.</p>
+            <p data-i18n="modalTermsText4">3. Hatırlatma bildirimleri tarayıcı ve cihaz ayarlarına (bildirim izni, pil tasarrufu vb.) bağlıdır; bildirimlerin her koşulda zamanında ulaşacağı garanti edilmez.</p>
+            <p data-i18n="modalTermsText5">4. Uygulama “olduğu gibi” sunulur; kesintisiz veya hatasız çalışacağı garanti edilmez. İçerik ve özellikler önceden haber verilmeksizin güncellenebilir.</p>
         </div>
     </div>
 </div>
@@ -497,7 +534,7 @@
             darkMod: "Koyu Mod",
             lightMod: "Açık Mod",
             colorPalette: "Özel Renk Paleti",
-            colorDesc: "Vurgu, yazı ve arka planı kişiselleştirin",
+            colorDesc: "Vurgu, yazı, arka plan ve yüzey görünümünü kişiselleştirin",
             editBtn: "Düzenle ›",
             langPref: "Uygulama Dili",
             langDesc: "Türkçe, İngilizce veya Arapça seçimi",
@@ -523,7 +560,7 @@
             secAbout: "Hakkında",
             appVersion: "Uygulama Sürümü",
             aboutUs: "Hakkımızda",
-            aboutUsDesc: "Proje danışmanlığı ve vizyonumuz",
+            aboutUsDesc: "Projemiz ve vizyonumuz",
             privacyPolicy: "Gizlilik Politikası",
             privacyDesc: "Verilerinizin güvenliği hakkında",
             termsCond: "Kullanım Koşulları",
@@ -533,6 +570,7 @@
             ytDesc: "İçeriklerimizi takip edin", ytBtn: "YouTube ›",
             footerText: "Huzur ve İbadet Rehberliğiniz",
             colorModalDesc: "Uygulama renklerini dilediğiniz gibi kişiselleştirin.",
+            colorFinish: "4. Yüzey Görünümü", finishMatte: "Mat", finishGlossy: "Parlak", lastUpdate: "Son güncelleme",
             colorAccent: "1. Vurgu Rengi", colorText: "2. Yazı Rengi", colorBg: "3. Arka Plan",
             colorSaveBtn: "Tüm Sayfalara Uygula", colorResetBtn: "Varsayılana Dön",
             modalAboutTitle: "Ayetin Vakti Hakkında",
@@ -540,12 +578,15 @@
             modalAboutText2: "Amacımız; namaz vakitlerinden Kur'an-ı Kerim okumaya, kıble pusulasından zikirmatiğe kadar İslami konulardaki dijital ihtiyaçlarınızı modern, sade ve reklamsız bir arayüzle tek bir çatı altında toplamaktır.",
             modalAboutText3: "Huzur ve İbadet Rehberliğiniz.",
             modalPrivacyTitle: "Gizlilik Politikası",
-            modalPrivacyText1: "<strong>Ayetin Vakti</strong> olarak kişisel gizliliğinize büyük önem veriyoruz. Uygulamamızı kullanırken tercih ettiğiniz konum, tema ve dil gibi ayarlarınız yalnızca sizin cihazınızda (localStorage üzerinde) saklanır.",
-            modalPrivacyText2: "Sunucularımızda hiçbir şahsi veri toplanmaz ve üçüncü şahıslarla paylaşılmaz.",
+            modalPrivacyText1: "<strong>Ayetin Vakti</strong> için hesap açmanız ya da ad, e-posta gibi kişisel bilgi vermeniz gerekmez. Dil, tema, renk, seçtiğiniz il, hatırlatma süresi ve hızlı menü tercihleri gibi ayarlarınız yalnızca kendi cihazınızdaki tarayıcı depolamasında (localStorage) saklanır.",
+            modalPrivacyText2: "Namaz vakitleri, kıble pusulası ve yakındaki camiler gibi bazı özellikler çalışabilmek için seçtiğiniz ili ya da (izin verirseniz) cihazınızın konumunu ilgili veri hizmeti sağlayıcılarına iletebilir. Konum izni tarayıcınız üzerinden verilir ve dilediğiniz zaman geri alınabilir.",
+            modalPrivacyText3: "Site GitHub Pages üzerinde barındırılır; barındırma sağlayıcısı olarak GitHub standart sunucu kayıtları tutabilir. Instagram ve YouTube bağlantıları, kendi gizlilik politikaları geçerli olan harici sitelere yönlendirir. Tarayıcı verilerinizi temizleyerek kayıtlı tercihlerinizi dilediğiniz zaman silebilirsiniz.",
             modalTermsTitle: "Kullanım Koşulları",
             modalTermsText1: "Bu uygulamayı kullanarak aşağıdaki koşulları kabul etmiş sayılırsınız:",
-            modalTermsText2: "1. Uygulama içerisindeki bilgiler bilgilendirme amaçlıdır.",
-            modalTermsText3: "2. Namaz vakitlerini yerel takvimlerle teyit etmek kullanıcının sorumluluğundadır."
+            modalTermsText2: "1. Uygulamadaki bilgiler genel bilgilendirme amacıyla sunulur; fetva veya bağlayıcı dinî hüküm yerine geçmez. Dinî konularda ayrıntı için yetkili kurumlara (ör. Diyanet İşleri Başkanlığı) ya da ehil âlimlere başvurunuz.",
+            modalTermsText3: "2. Namaz vakitleri, kıble yönü, imsakiye ve zekât hesaplamaları yaklaşık sonuçlar verebilir (konum, cihaz sensörü ve hesaplama yöntemi farklarından etkilenir). Bu bilgileri resmî takvimler ve yerel duyurularla teyit etmek kullanıcının sorumluluğundadır.",
+            modalTermsText4: "3. Hatırlatma bildirimleri tarayıcı ve cihaz ayarlarına (bildirim izni, pil tasarrufu vb.) bağlıdır; bildirimlerin her koşulda zamanında ulaşacağı garanti edilmez.",
+            modalTermsText5: "4. Uygulama “olduğu gibi” sunulur; kesintisiz veya hatasız çalışacağı garanti edilmez. İçerik ve özellikler önceden haber verilmeksizin güncellenebilir."
         },
         en: {
             settingsTitle: "App Settings",
@@ -555,7 +596,7 @@
             darkMod: "Dark Mode",
             lightMod: "Light Mode",
             colorPalette: "Custom Color Palette",
-            colorDesc: "Personalize accent, text, and background",
+            colorDesc: "Personalize accent, text, background and surface finish",
             editBtn: "Edit ›",
             langPref: "App Language",
             langDesc: "Select Turkish, English, or Arabic",
@@ -591,6 +632,7 @@
             ytDesc: "Follow our content", ytBtn: "YouTube ›",
             footerText: "Your Guide to Peace & Worship",
             colorModalDesc: "Personalize app colors as you wish.",
+            colorFinish: "4. Surface Finish", finishMatte: "Matte", finishGlossy: "Glossy", lastUpdate: "Last updated",
             colorAccent: "1. Accent Color", colorText: "2. Text Color", colorBg: "3. Background",
             colorSaveBtn: "Apply to All Pages", colorResetBtn: "Reset to Default",
             modalAboutTitle: "About Ayetin Vakti",
@@ -598,12 +640,15 @@
             modalAboutText2: "Our goal is to bring your digital needs in Islamic matters, from prayer times and reading the Qur'an to the qibla compass and dhikr counter, together under one roof with a modern, simple and ad-free interface.",
             modalAboutText3: "Your Guide to Peace and Worship.",
             modalPrivacyTitle: "Privacy Policy",
-            modalPrivacyText1: "We take your privacy very seriously. Your preferences such as location, theme and language are stored only on your own device (in localStorage).",
-            modalPrivacyText2: "No personal data is collected on our servers or shared with third parties.",
+            modalPrivacyText1: "You do not need an account or to provide personal details such as your name or email to use <strong>Ayetin Vakti</strong>. Your preferences (language, theme, colors, selected city, reminder time and quick menu choices) are stored only in your own browser (localStorage).",
+            modalPrivacyText2: "Some features, such as prayer times, the qibla compass and nearby mosques, may send your selected city or, if you grant permission, your device's location to the relevant data service providers in order to work. Location permission is granted through your browser and can be revoked at any time.",
+            modalPrivacyText3: "The site is hosted on GitHub Pages; as the hosting provider, GitHub may keep standard server logs. Links to Instagram and YouTube take you to external sites governed by their own privacy policies. You can delete your saved preferences at any time by clearing your browser data.",
             modalTermsTitle: "Terms of Use",
             modalTermsText1: "By using this app, you are deemed to accept the following terms:",
-            modalTermsText2: "1. The information in the app is for informational purposes only.",
-            modalTermsText3: "2. It is the user's responsibility to verify prayer times against local calendars."
+            modalTermsText2: "1. The information in the app is provided for general informational purposes and is not a substitute for a fatwa or a binding religious ruling. For details on religious matters, please consult qualified authorities (e.g., the Presidency of Religious Affairs, Diyanet) or knowledgeable scholars.",
+            modalTermsText3: "2. Prayer times, qibla direction, imsakiyah and zakat calculations may be approximate (affected by location, device sensors and calculation-method differences). It is the user's responsibility to verify them against official calendars and local announcements.",
+            modalTermsText4: "3. Reminder notifications depend on browser and device settings (notification permission, battery saver, etc.); timely delivery is not guaranteed in every case.",
+            modalTermsText5: "4. The app is provided “as is” without any guarantee of uninterrupted or error-free operation. Content and features may be updated without prior notice."
         },
         ar: {
             settingsTitle: "إعدادات التطبيق",
@@ -613,7 +658,7 @@
             darkMod: "الوضع الداكن",
             lightMod: "الوضع الفاتح",
             colorPalette: "لوحة ألوان مخصصة",
-            colorDesc: "تخصيص لون التمييز والنص والخلفية",
+            colorDesc: "تخصيص لون التمييز والنص والخلفية ومظهر السطح",
             editBtn: "تعديل ‹",
             langPref: "لغة التطبيق",
             langDesc: "اختر التركية، الإنجليزية، أو العربية",
@@ -649,6 +694,7 @@
             ytDesc: "تابع محتوانا", ytBtn: "يوتيوب ‹",
             footerText: "دليلك للسلام والعبادة",
             colorModalDesc: "قم بتخصيص ألوان التطبيق كما يحلو لك.",
+            colorFinish: "4. مظهر السطح", finishMatte: "مطفي", finishGlossy: "لامع", lastUpdate: "آخر تحديث",
             colorAccent: "1. لون التمييز", colorText: "2. لون النص", colorBg: "3. الخلفية",
             colorSaveBtn: "تطبيق على جميع الصفحات", colorResetBtn: "إعادة للوضع الافتراضي",
             modalAboutTitle: "حول وقت الآية",
@@ -656,14 +702,69 @@
             modalAboutText2: "هدفنا أن نجمع احتياجاتك الرقمية في الأمور الإسلامية، من مواقيت الصلاة وقراءة القرآن الكريم إلى بوصلة القبلة والمسبحة الإلكترونية، تحت سقف واحد بواجهة عصرية بسيطة وخالية من الإعلانات.",
             modalAboutText3: "دليلك للسلام والعبادة.",
             modalPrivacyTitle: "سياسة الخصوصية",
-            modalPrivacyText1: "نولي خصوصيتك أهمية كبيرة. تُحفظ تفضيلاتك مثل الموقع والمظهر واللغة على جهازك فقط (localStorage).",
-            modalPrivacyText2: "لا يتم جمع أي بيانات شخصية على خوادمنا ولا تتم مشاركتها مع أطراف ثالثة.",
+            modalPrivacyText1: "لا تحتاج إلى حساب ولا إلى تقديم معلومات شخصية مثل الاسم أو البريد الإلكتروني لاستخدام <strong>وقت الآية</strong>. تُحفظ تفضيلاتك (اللغة والمظهر والألوان والمدينة المختارة ووقت التذكير وخيارات القائمة السريعة) في متصفحك أنت فقط (localStorage).",
+            modalPrivacyText2: "قد ترسل بعض الميزات، مثل مواقيت الصلاة وبوصلة القبلة والمساجد القريبة، المدينة التي اخترتها أو موقع جهازك (إذا منحت الإذن) إلى مزوّدي خدمات البيانات المعنيّين كي تعمل. يُمنح إذن الموقع من خلال المتصفح ويمكنك سحبه في أي وقت.",
+            modalPrivacyText3: "يُستضاف الموقع على GitHub Pages، وبصفتها مزوّد الاستضافة قد تحتفظ GitHub بسجلات الخوادم المعتادة. تنقلك روابط إنستغرام ويوتيوب إلى مواقع خارجية تخضع لسياسات الخصوصية الخاصة بها. يمكنك حذف تفضيلاتك المحفوظة في أي وقت بمسح بيانات المتصفح.",
             modalTermsTitle: "شروط الاستخدام",
             modalTermsText1: "باستخدامك لهذا التطبيق فإنك توافق على الشروط التالية:",
-            modalTermsText2: "1. المعلومات الواردة في التطبيق لأغراض إعلامية.",
-            modalTermsText3: "2. يقع على المستخدم مسؤولية التحقق من مواقيت الصلاة وفق التقاويم المحلية."
+            modalTermsText2: "1. المعلومات الواردة في التطبيق للتوعية العامة ولا تُغني عن الفتوى أو الحكم الشرعي الملزم. وللتفصيل في المسائل الدينية يُرجى الرجوع إلى الجهات المختصة (مثل رئاسة الشؤون الدينية التركية «ديانت») أو إلى أهل العلم.",
+            modalTermsText3: "2. قد تكون نتائج مواقيت الصلاة واتجاه القبلة والإمساكية وحسابات الزكاة تقريبية (بسبب الفروق في الموقع وحساسات الجهاز وطريقة الحساب). ويقع على المستخدم مسؤولية التحقق منها بالتقاويم الرسمية والإعلانات المحلية.",
+            modalTermsText4: "3. تعتمد إشعارات التذكير على إعدادات المتصفح والجهاز (إذن الإشعارات، توفير الطاقة، إلخ)، ولا يُضمن وصولها في الوقت المحدد في كل الأحوال.",
+            modalTermsText5: "4. يُقدَّم التطبيق «كما هو» دون ضمان لعمله دون انقطاع أو أخطاء، وقد تُحدَّث المحتويات والميزات دون إشعار مسبق."
         }
     };
+
+    // ---- Sürüm: ana sürüm elle, yapım numarası otomatik ----
+    // Her sayfanın sunucudaki "Last-Modified" tarihlerinden en yenisi sürüm numarasını belirler;
+    // böylece herhangi bir sayfa güncellenince numara kendiliğinden ilerler.
+    // Yeni sayfa (repo) eklenirse yalnızca aşağıdaki listeye adı eklenmelidir.
+    const APP_VERSION_BASE = '0.3';   // büyük değişikliklerde elle artırılır
+    const VERSION_PAGES = [
+        '', 'ayarlar/', '5-5-namaz/', 'namaz-ogretmeni/', 'Zikirmatik/', 'gunun-ayeti/', 'kuran-oku/',
+        'Namaz-vakitleri/', 'kible-pusulasi/', 'Islami-Tabu/', 'ayet-asistan/', 'dini-gunler/',
+        'Yakindaki-Camiler/', 'zekat-hesaplama/', 'Ramazan-ozel-imsakiye/', 'Haftanin-Hutbesi/',
+        'gunluk-dualar/', 'Siyer-i-Nebi/', 'Ilmihal/', 'kaza-namazi/'
+    ];
+    const VERSION_CACHE_KEY = 'app_version_stamp';
+    const VERSION_CACHE_MS = 30 * 60 * 1000;
+
+    function pad2(n) { return String(n).padStart(2, '0'); }
+
+    async function fetchLatestUpdate() {
+        const results = await Promise.allSettled(VERSION_PAGES.map(p =>
+            fetch(location.origin + '/' + p, { method: 'HEAD', cache: 'no-store' })
+                .then(r => r.ok ? r.headers.get('Last-Modified') : null)
+        ));
+        const times = results
+            .map(r => (r.status === 'fulfilled' && r.value) ? Date.parse(r.value) : NaN)
+            .filter(t => !isNaN(t));
+        return times.length ? Math.max(...times) : null;
+    }
+
+    function renderVersionStamp() {
+        const numEl = document.getElementById('appVersionNum');
+        const stEl = document.getElementById('appVersionStamp');
+        if (!numEl || !stEl) return;
+        let ts = null;
+        try { const c = JSON.parse(localStorage.getItem(VERSION_CACHE_KEY) || 'null'); if (c && c.ts) ts = c.ts; } catch (e) {}
+        if (!ts) { numEl.textContent = 'v' + APP_VERSION_BASE; stEl.textContent = ''; return; }
+        const d = new Date(ts);
+        numEl.textContent = 'v' + APP_VERSION_BASE + '.' + String(d.getFullYear()).slice(2) + pad2(d.getMonth() + 1) + pad2(d.getDate());
+        const loc = currentLangCode() === 'tr' ? 'tr-TR' : currentLangCode();
+        stEl.textContent = tr('lastUpdate') + ': ' + d.toLocaleString(loc, { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    async function refreshVersion() {
+        try {
+            const c = JSON.parse(localStorage.getItem(VERSION_CACHE_KEY) || 'null');
+            if (c && Date.now() - c.checked < VERSION_CACHE_MS) return;
+            const ts = await fetchLatestUpdate();
+            if (ts) {
+                localStorage.setItem(VERSION_CACHE_KEY, JSON.stringify({ ts: ts, checked: Date.now() }));
+                renderVersionStamp();
+            }
+        } catch (e) {}
+    }
 
     function currentLangCode() {
         const l = localStorage.getItem('user_lang') || 'tr';
@@ -693,6 +794,7 @@
 
         // Menü kutucuklarının isimleri dile göre güncellensin
         renderMenuCheckboxes();
+        renderVersionStamp();
         updateThemeColor();
     }
 
@@ -785,10 +887,11 @@
 
     // ---- Özel renk paleti ----
     // Yalnızca kullanıcının dokunduğu renkler kaydedilir; dokunulmayanlar temanın kendi değerinde kalır
-    const touched = { accent: false, text: false, bg: false };
+    const touched = { accent: false, text: false, bg: false, finish: false };
+    let pendingFinish = 'matte';
 
     function resetTouched() {
-        touched.accent = touched.text = touched.bg = false;
+        touched.accent = touched.text = touched.bg = touched.finish = false;
     }
 
     // Kayıtlı özel renkleri <html> üzerine uygular; kayıt yoksa satır içi değeri kaldırır (tema varsayılanı geçerli olur)
@@ -803,7 +906,25 @@
             props.forEach(p => v ? root.setProperty(p, v) : root.removeProperty(p));
         });
         window.applyAutoContrast(localStorage.getItem('custom_bg'), localStorage.getItem('custom_text'));
+        applyFinish(savedFinish());
         updateThemeColor();
+    }
+
+    // ---- Yüzey görünümü (mat / parlak) ----
+    function savedFinish() {
+        return localStorage.getItem('custom_finish') === 'glossy' ? 'glossy' : 'matte';
+    }
+    function applyFinish(f) {
+        document.documentElement.classList.toggle('finish-glossy', f === 'glossy');
+    }
+    function markFinishButtons(f) {
+        document.querySelectorAll('.finish-btn').forEach(b => b.classList.toggle('active', b.dataset.finish === f));
+    }
+    function previewFinish(f) {
+        touched.finish = true;
+        pendingFinish = f;
+        applyFinish(f);
+        markFinishButtons(f);
     }
 
     function toHex(v, fallback) {
@@ -820,6 +941,7 @@
         document.getElementById('accentPicker').value = toHex(cs.getPropertyValue('--accent-color'), isLight ? '#059669' : '#10b981');
         document.getElementById('textPicker').value = toHex(cs.getPropertyValue('--text-color'), isLight ? '#0f172a' : '#f8fafc');
         document.getElementById('bgPicker').value = toHex(cs.getPropertyValue('--bg-color'), isLight ? '#f8fafc' : '#0b1120');
+        markFinishButtons(savedFinish());
     }
 
     function previewColor(type, val) {
@@ -837,7 +959,7 @@
     }
 
     function applyColorsToAll() {
-        if (!touched.accent && !touched.text && !touched.bg) {
+        if (!touched.accent && !touched.text && !touched.bg && !touched.finish) {
             alert(tr('colorsNoChangeMsg'));
             toggleModal('colorSettingsModal');
             return;
@@ -845,6 +967,10 @@
         if (touched.accent) localStorage.setItem('custom_accent', document.getElementById('accentPicker').value);
         if (touched.text) localStorage.setItem('custom_text', document.getElementById('textPicker').value);
         if (touched.bg) localStorage.setItem('custom_bg', document.getElementById('bgPicker').value);
+        if (touched.finish) {
+            if (pendingFinish === 'glossy') localStorage.setItem('custom_finish', 'glossy');
+            else localStorage.removeItem('custom_finish');
+        }
 
         alert(tr('colorsSavedMsg'));
         toggleModal('colorSettingsModal');
@@ -854,6 +980,7 @@
         localStorage.removeItem('custom_accent');
         localStorage.removeItem('custom_text');
         localStorage.removeItem('custom_bg');
+        localStorage.removeItem('custom_finish');
         resetTouched();
         applySavedColors();
         refreshPickers();
@@ -907,6 +1034,7 @@
         refreshPickers();
 
         applyTranslations(savedLang);
+        refreshVersion();
     });
 </script>
 </body>
