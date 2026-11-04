@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ayarlar | Ayetin Vakti</title>
+    <script src="https://ayetinvakti.github.io/menu.js" defer></script>
     <meta name="theme-color" content="#10b981">
 
     <!-- Sayfa yüklenmeden önce kayıtlı dil, tema ve özel renkleri uygulayan script -->
@@ -88,6 +89,9 @@
         .nav-left { display: flex; align-items: center; gap: 12px; }
         .back-btn { background: none; border: none; color: var(--text-color); font-size: 1.25rem; cursor: pointer; text-decoration: none; display: inline-block; transition: 0.2s;}
 
+        /* ☰ menü düğmesi: ← ile aynı sade görünüm */
+        .menu-btn { background: none; border: none; color: var(--text-color); font-size: 1.25rem; line-height: 1; padding: 4px; cursor: pointer; font-family: inherit; transition: 0.2s; }
+
         /* RTL (Arapça) Geri Butonu Yön Çevirme */
         html[dir="rtl"] .back-btn { transform: scaleX(-1); }
 
@@ -170,6 +174,7 @@
     <header class="navbar">
         <div class="nav-left">
             <a href="https://ayetinvakti.github.io/" class="back-btn">←</a>
+            <button class="menu-btn" data-drawer-toggle aria-label="Menü" title="Menü">☰</button>
             <a href="#" class="app-title" data-i18n="settingsTitle">Uygulama Ayarları</a>
         </div>
     </header>
