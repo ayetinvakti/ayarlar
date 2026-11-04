@@ -86,16 +86,17 @@
         .container { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 16px; }
 
         .navbar { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; transition: 0.3s; }
-        .nav-left { display: flex; align-items: center; gap: 12px; }
-        .back-btn { background: none; border: none; color: var(--text-color); font-size: 1.25rem; cursor: pointer; text-decoration: none; display: inline-block; transition: 0.2s;}
+        .nav-left { display: flex; align-items: center; gap: 8px; }
+        .back-btn { width: 42px; height: 42px; border-radius: 50%; background: var(--btn-bg, rgba(128,128,128,0.12)); border: 1px solid var(--border-color); color: var(--text-color); display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; font-size: 1.25rem; line-height: 1; padding: 0; font-family: inherit; transition: 0.2s; flex: none; }
 
-        /* ☰ menü düğmesi: ← ile aynı sade görünüm */
-        .menu-btn { background: none; border: none; color: var(--text-color); font-size: 1.25rem; line-height: 1; padding: 4px; cursor: pointer; font-family: inherit; transition: 0.2s; }
+        /* ☰ menü düğmesi: ← ile aynı yuvarlak görünüm (diğer sayfalarla aynı) */
+        .menu-btn { width: 42px; height: 42px; border-radius: 50%; background: var(--btn-bg, rgba(128,128,128,0.12)); border: 1px solid var(--border-color); color: var(--text-color); display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; font-size: 1.25rem; line-height: 1; padding: 0; font-family: inherit; transition: 0.2s; flex: none; }
+        @media (hover: hover) { .back-btn:hover, .menu-btn:hover { border-color: var(--accent-color); color: var(--accent-color); } }
 
         /* RTL (Arapça) Geri Butonu Yön Çevirme */
         html[dir="rtl"] .back-btn { transform: scaleX(-1); }
 
-        .app-title { font-size: 1.15rem; font-weight: 700; color: var(--accent-color); text-decoration: none; font-family: 'Georgia', serif; }
+        .app-title { margin-inline-start: 4px; font-size: 1.15rem; font-weight: 700; color: var(--accent-color); text-decoration: none; font-family: 'Georgia', serif; }
 
         .settings-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; transition: 0.3s; }
         .settings-section-title { font-size: 0.85rem; font-weight: 700; color: var(--accent-color); text-transform: uppercase; }
