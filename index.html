@@ -96,7 +96,9 @@
         /* RTL (Arapça) Geri Butonu Yön Çevirme */
         html[dir="rtl"] .back-btn { transform: scaleX(-1); }
 
-        .app-title { margin-inline-start: 4px; font-size: 1.15rem; font-weight: 700; color: var(--accent-color); text-decoration: none; font-family: 'Georgia', serif; }
+        /* Başlık: üst çubuğun altında, ortalı ayrı satır */
+        .page-head { display: flex; align-items: center; justify-content: center; padding: 0 8px; }
+        .app-title { font-size: 1.25rem; font-weight: 700; color: var(--accent-color); text-align: center; font-family: 'Georgia', serif; }
 
         .settings-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; transition: 0.3s; }
         .settings-section-title { font-size: 0.85rem; font-weight: 700; color: var(--accent-color); text-transform: uppercase; }
@@ -174,11 +176,14 @@
 <div class="container">
     <header class="navbar">
         <div class="nav-left">
-            <a href="https://ayetinvakti.github.io/" class="back-btn">←</a>
-            <button class="menu-btn" data-drawer-toggle aria-label="Menü" title="Menü">☰</button>
-            <a href="#" class="app-title" data-i18n="settingsTitle">Uygulama Ayarları</a>
+            <a href="https://ayetinvakti.github.io/" class="back-btn" aria-label="Geri Dön" title="Geri Dön">←</a>
+            <button class="menu-btn" data-drawer-toggle aria-label="Menü" aria-controls="avmDrawer" title="Menü">☰</button>
         </div>
     </header>
+
+    <div class="page-head">
+        <h1 class="app-title" data-i18n="settingsTitle">Uygulama Ayarları</h1>
+    </div>
 
     <div class="settings-card">
         <div class="settings-section-title" data-i18n="secAppearance">Görünüm ve Tercihler</div>
