@@ -479,6 +479,8 @@
                 </div>
             </div>
 
+            <div id="contrastWarn" role="status" aria-live="polite" hidden style="background:#fef3c7; color:#78350f; border:1px solid #f59e0b; border-radius:10px; padding:10px 12px; font-size:0.82rem; line-height:1.45; margin-top:6px;"></div>
+
             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
                 <button class="btn-ui btn-primary" onclick="applyColorsToAll()" data-i18n="colorSaveBtn">Tüm Sayfalara Uygula</button>
                 <button class="btn-ui" style="justify-content: center; background: transparent; padding: 8px;" onclick="resetColors()" data-i18n="colorResetBtn">Varsayılana Dön</button>
@@ -585,6 +587,9 @@
             menuEmptyMsg: "Lütfen en az 1 öğe seçin!",
             menuSavedMsg: "Menü tercihleri başarıyla kaydedildi!",
             colorsSavedMsg: "Renkler başarıyla uygulandı ve kaydedildi!",
+            contrastWarnText: "⚠️ Yazı ve arka plan rengi birbirine çok yakın (kontrast {r}:1). Yazılar zor okunabilir; en az 4,5:1 önerilir.",
+            contrastWarnAccent: "⚠️ Vurgu rengi arka plana çok yakın (kontrast {r}:1). Başlıklar ve düğmeler zor seçilebilir; en az 3:1 önerilir.",
+            contrastConfirm: "Yazı veya vurgu rengi arka plana çok yakın, okunması zor olabilir. Yine de kaydedilsin mi?",
             colorsNoChangeMsg: "Renklerde değişiklik yapılmadı.",
             cityPref: "Varsayılan Konum",
             cityDesc: "Namaz vakitleri için il seçin",
@@ -647,6 +652,9 @@
             menuEmptyMsg: "Please select at least 1 item!",
             menuSavedMsg: "Menu preferences saved successfully!",
             colorsSavedMsg: "Colors applied and saved successfully!",
+            contrastWarnText: "⚠️ Text and background colors are too close (contrast {r}:1). Text may be hard to read; at least 4.5:1 is recommended.",
+            contrastWarnAccent: "⚠️ Accent color is too close to the background (contrast {r}:1). Headings and buttons may be hard to see; at least 3:1 is recommended.",
+            contrastConfirm: "The text or accent color is very close to the background and may be hard to read. Save anyway?",
             colorsNoChangeMsg: "No color changes were made.",
             cityPref: "Default Location",
             cityDesc: "Select city for prayer times",
@@ -709,6 +717,9 @@
             menuEmptyMsg: "يرجى اختيار عنصر واحد على الأقل!",
             menuSavedMsg: "تم حفظ تفضيلات القائمة بنجاح!",
             colorsSavedMsg: "تم تطبيق الألوان وحفظها بنجاح!",
+            contrastWarnText: "⚠️ لون النص ولون الخلفية متقاربان جداً (التباين {r}:1). قد يصعب قراءة النص؛ يُنصح بما لا يقل عن 4.5:1.",
+            contrastWarnAccent: "⚠️ لون التمييز قريب جداً من الخلفية (التباين {r}:1). قد يصعب رؤية العناوين والأزرار؛ يُنصح بما لا يقل عن 3:1.",
+            contrastConfirm: "لون النص أو لون التمييز قريب جداً من الخلفية وقد يصعب قراءته. هل تريد الحفظ على أي حال؟",
             colorsNoChangeMsg: "لم يتم إجراء أي تغيير على الألوان.",
             cityPref: "الموقع الافتراضي",
             cityDesc: "اختر المدينة لمواقيت الصلاة",
@@ -977,6 +988,49 @@
         document.getElementById('textPicker').value = toHex(cs.getPropertyValue('--text-color'), isLight ? '#0f172a' : '#f8fafc');
         document.getElementById('bgPicker').value = toHex(cs.getPropertyValue('--bg-color'), isLight ? '#f8fafc' : '#0b1120');
         markFinishButtons(savedFinish());
+        updateContrastWarn();
+    }
+
+
+    // ---- Kontrast uyarısı (yazı/vurgu - arka plan) ----
+    function relLum(hex) {
+        const n = parseInt(hex.slice(1), 16);
+        const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+        return 0.2126 * lin(n >> 16) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+    }
+    function contrastRatio(a, b) {
+        const la = relLum(a), lb = relLum(b);
+        return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+    }
+    // Şu an görünen (önizlenen veya kayıtlı) renklerin kontrastını ölçer
+    function currentContrast() {
+        const cs = getComputedStyle(document.documentElement);
+        const bg = toHex(cs.getPropertyValue('--bg-color'), null);
+        const tx = toHex(cs.getPropertyValue('--text-color'), null);
+        const ac = toHex(cs.getPropertyValue('--accent-color'), null);
+        if (!bg) return null;
+        return {
+            text: tx ? contrastRatio(tx, bg) : null,
+            accent: ac ? contrastRatio(ac, bg) : null
+        };
+    }
+    function fmtRatio(r) {
+        return r.toFixed(1).replace('.', currentLangCode() === 'tr' ? ',' : '.');
+    }
+    function updateContrastWarn() {
+        const el = document.getElementById('contrastWarn');
+        if (!el) return;
+        const c = currentContrast();
+        const lines = [];
+        if (c && c.text !== null && c.text < 4.5) lines.push(tr('contrastWarnText').replace('{r}', fmtRatio(c.text)));
+        if (c && c.accent !== null && c.accent < 3) lines.push(tr('contrastWarnAccent').replace('{r}', fmtRatio(c.accent)));
+        el.innerHTML = lines.join('<br>');
+        el.hidden = lines.length === 0;
+    }
+    // Kaydetmeden önce: ciddi düşük kontrastta kullanıcıya sorulur
+    function contrastNeedsConfirm() {
+        const c = currentContrast();
+        return !!c && ((c.text !== null && c.text < 3) || (c.accent !== null && c.accent < 2));
     }
 
     function previewColor(type, val) {
@@ -991,6 +1045,7 @@
         const bgNow = touched.bg ? document.getElementById('bgPicker').value : localStorage.getItem('custom_bg');
         window.applyAutoContrast(bgNow, touched.text || !!localStorage.getItem('custom_text'));
         updateThemeColor();
+        updateContrastWarn();
     }
 
     function applyColorsToAll() {
@@ -999,6 +1054,7 @@
             toggleModal('colorSettingsModal');
             return;
         }
+        if (contrastNeedsConfirm() && !confirm(tr('contrastConfirm'))) return;
         if (touched.accent) localStorage.setItem('custom_accent', document.getElementById('accentPicker').value);
         if (touched.text) localStorage.setItem('custom_text', document.getElementById('textPicker').value);
         if (touched.bg) localStorage.setItem('custom_bg', document.getElementById('bgPicker').value);
