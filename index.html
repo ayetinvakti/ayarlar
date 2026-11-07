@@ -38,19 +38,39 @@
                 document.documentElement.style.setProperty('--card-bg', customBg);
             }
 
-            // Özel arka plan var, yazı rengi seçilmemişse okunabilir yazı/ikincil yazı/kenarlık rengini zeminin açıklığına göre belirler
+            // Yüzey (kart/buton zemini) açık mı koyu mu: özel arka plan varsa onun açıklığına, yoksa temaya bakılır.
+            // Parlak/mat işlemesi ve native kontroller (color-scheme) bu sınıfa göre çalışır; böylece koyu özel zeminde açık modda bile bozulmaz.
+            const hexL = function (bg) {
+                const m = /^#([0-9a-f]{6})$/i.exec((bg || '').trim());
+                if (!m) return null;
+                const n = parseInt(m[1], 16);
+                const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+                return 0.2126 * lin(n >> 16) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+            };
+            window.syncSurface = function (bg) {
+                const root = document.documentElement;
+                const L = hexL(bg);
+                const light = L !== null ? L > 0.18 : root.classList.contains('light-mode');
+                root.classList.toggle('surf-light', light);
+                root.classList.toggle('surf-dark', !light);
+            };
+
+            // Özel arka plan varsa okunabilir yazı/ikincil yazı/kenarlık rengi zeminin açıklığından (yazı seçilmişse yazı renginden) türetilir
             window.applyAutoContrast = function (bg, customTextSet) {
                 const st = document.documentElement.style;
-                const m = /^#([0-9a-f]{6})$/i.exec((bg || '').trim());
-                if (!m || customTextSet) {
+                const L = hexL(bg);
+                window.syncSurface(bg);
+                if (L === null) {
                     st.removeProperty('--text-muted');
                     st.removeProperty('--border-color');
                     if (!customTextSet) st.removeProperty('--text-color');
                     return;
                 }
-                const n = parseInt(m[1], 16);
-                const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
-                const L = 0.2126 * lin(n >> 16) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+                if (customTextSet) {
+                    st.setProperty('--text-muted', 'color-mix(in srgb, var(--text-color) 68%, transparent)');
+                    st.setProperty('--border-color', 'color-mix(in srgb, var(--text-color) 24%, transparent)');
+                    return;
+                }
                 const bgIsLight = L > 0.18;
                 st.setProperty('--text-color', bgIsLight ? '#0f172a' : '#f8fafc');
                 st.setProperty('--text-muted', bgIsLight ? '#475569' : '#cbd5e1');
@@ -161,14 +181,18 @@
         }
         html.finish-glossy .slider:before { box-shadow: 0 1px 3px rgba(0,0,0,0.35); }
         /* Açık zeminde beyaz parlama görünmez; üstte parlama + altta hafif gölgelenme verilir */
-        html.light-mode.finish-glossy .navbar, html.light-mode.finish-glossy .settings-card, html.light-mode.finish-glossy .modal-card {
+        html.surf-light.finish-glossy .navbar, html.surf-light.finish-glossy .settings-card, html.surf-light.finish-glossy .modal-card {
             background-image: linear-gradient(180deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 55%), linear-gradient(0deg, rgba(15,23,42,0.06) 0%, rgba(15,23,42,0) 40%);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 6px 18px rgba(15,23,42,0.12);
         }
-        html.light-mode.finish-glossy .btn-ui, html.light-mode.finish-glossy .finish-btn { box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 6px rgba(15,23,42,0.15); }
+        html.surf-light.finish-glossy .btn-ui, html.surf-light.finish-glossy .finish-btn { box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 6px rgba(15,23,42,0.15); }
 
         /* Light Mode Destekleri */
         html.light-mode { color-scheme: light; --bg-color: #f8fafc; --card-bg: #ffffff; --text-color: #0f172a; --text-muted: #64748b; --border-color: #e2e8f0; }
+
+        /* Native kontroller (seçim listesi, renk kutusu) yüzey açıklığına uysun */
+        html.surf-dark { color-scheme: dark; }
+        html.surf-light { color-scheme: light; }
     </style>
 </head>
 <body>
@@ -1026,6 +1050,7 @@
     function toggleTheme() {
         const isLight = document.documentElement.classList.toggle('light-mode');
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        window.syncSurface(localStorage.getItem('custom_bg'));
         applyTranslations(currentLangCode());
     }
 
